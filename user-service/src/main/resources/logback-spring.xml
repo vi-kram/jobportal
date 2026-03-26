@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+
+    <!-- Override Spring Boot's default console appender pattern -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [${appName}] [%thread] %logger{36} : %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Your code: DEBUG level -->
+    <logger name="com.capg" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- Suppress noisy Spring/Hibernate/Netflix internals -->
+    <logger name="org.springframework"                                          level="WARN"/>
+    <logger name="org.hibernate"                                               level="WARN"/>
+    <logger name="com.netflix"                                                 level="OFF"/>
+    <logger name="com.zaxxer"                                                  level="WARN"/>
+    <logger name="org.apache"                                                  level="WARN"/>
+    <!-- Suppress specific noisy WARN lines -->
+    <logger name="org.springframework.cloud.loadbalancer"                      level="ERROR"/>
+    <logger name="org.springframework.boot.autoconfigure.orm.jpa"              level="ERROR"/>
+    <logger name="org.springframework.cloud.netflix.eureka"                    level="ERROR"/>
+    <logger name="org.springframework.cloud.commons.util"                      level="ERROR"/>
+    <logger name="org.springframework.boot.devtools"                           level="ERROR"/>
+    <logger name="org.springframework.beans.factory.support"                   level="ERROR"/>
+    <logger name="org.springframework.context.support"                         level="ERROR"/>
+    <logger name="org.hibernate.orm.deprecation"                               level="ERROR"/>
+    <logger name="com.netflix.discovery"                                       level="ERROR"/>
+    <logger name="com.netflix.discovery.shared.transport"                      level="ERROR"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>
