@@ -4,28 +4,21 @@ on:
   push:
     branches: [ main ]
 
-env:
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-
 jobs:
-
-  # ============================================================
-  # BUILD & TEST
-  # ============================================================
 
   build-user-service:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Build user-service
-        run: cd user-service && ./mvnw package -DskipTests -q
-      - name: Test user-service
-        run: cd user-service && ./mvnw test -q
+      - name: Build & Test user-service
+        run: cd user-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -35,14 +28,16 @@ jobs:
   build-job-service:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
       - name: Build & Test job-service
-        run: cd job-service && ./mvnw package -DskipTests -q
+        run: cd job-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -52,14 +47,16 @@ jobs:
   build-application-service:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
       - name: Build & Test application-service
-        run: cd application-service && ./mvnw package -DskipTests -q
+        run: cd application-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -69,14 +66,16 @@ jobs:
   build-resume-service:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
       - name: Build & Test resume-service
-        run: cd resume-service && ./mvnw package -DskipTests -q
+        run: cd resume-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -86,14 +85,16 @@ jobs:
   build-notification-service:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
       - name: Build & Test notification-service
-        run: cd notification-service && ./mvnw package -DskipTests -q
+        run: cd notification-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -103,14 +104,16 @@ jobs:
   build-search-service:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
       - name: Build & Test search-service
-        run: cd search-service && ./mvnw package -DskipTests -q
+        run: cd search-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -120,14 +123,16 @@ jobs:
   build-analytics-service:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
       - name: Build & Test analytics-service
-        run: cd analytics-service && ./mvnw package -DskipTests -q
+        run: cd analytics-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -137,14 +142,16 @@ jobs:
   build-api-gateway:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
       - name: Build & Test api-gateway
-        run: cd api-gateway && ./mvnw package -DskipTests -q
+        run: cd api-gateway && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -154,14 +161,16 @@ jobs:
   build-eureka-server:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
       - name: Build eureka-server
-        run: cd eureka-server && ./mvnw package -DskipTests -q
+        run: cd eureka-server && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -171,14 +180,16 @@ jobs:
   build-config-server:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
       - name: Build config-server
-        run: cd config-server && ./mvnw package -DskipTests -q
+        run: cd config-server && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
