@@ -1,0 +1,36 @@
+# Maven
+target/
+*.jar
+*.war
+*.ear
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.factorypath
+.springBeans
+.sts4-cache
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Eclipse workspace
+.metadata/
+
+# Embedded git repos (have their own remotes)
+jobportal-config/
+user-service/.git/
+
+# Chat logs
+q-dev-chat-*.md
