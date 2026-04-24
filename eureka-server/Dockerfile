@@ -1,4 +1,5 @@
 FROM public.ecr.aws/amazoncorretto/amazoncorretto:17-al2023 AS build
+RUN yum install -y tar gzip
 WORKDIR /app
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
