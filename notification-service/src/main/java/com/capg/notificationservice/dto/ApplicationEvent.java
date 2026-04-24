@@ -3,8 +3,8 @@ package com.capg.notificationservice.dto;
 public class ApplicationEvent {
 
     private String applicationId;
+    private Long jobId;
     private String userEmail;
-    private String jobId;
     private String status;
 
     public ApplicationEvent() {}
@@ -12,11 +12,11 @@ public class ApplicationEvent {
     public String getApplicationId() { return applicationId; }
     public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
 
+    public Long getJobId() { return jobId; }
+    public void setJobId(Long jobId) { this.jobId = jobId; }
+
     public String getUserEmail() { return userEmail; }
     public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
-
-    public String getJobId() { return jobId; }
-    public void setJobId(String jobId) { this.jobId = jobId; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

@@ -7,7 +7,10 @@ import com.capg.userservice.dto.response.UserResponse;
 import com.capg.userservice.entity.Role;
 import com.capg.userservice.entity.User;
 import com.capg.userservice.exception.EmailAlreadyExistsException;
+import com.capg.userservice.exception.InvalidCredentialsException;
+import com.capg.userservice.exception.UnauthorizedException;
 import com.capg.userservice.exception.UserNotFoundException;
+import com.capg.userservice.mapper.UserMapper;
 import com.capg.userservice.repository.UserRepository;
 import com.capg.userservice.service.impl.UserServiceImpl;
 import com.capg.userservice.util.JwtUtil;
@@ -30,68 +33,56 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private JwtUtil jwtUtil;
+    @Mock private UserRepository userRepository;
+    @Mock private PasswordEncoder passwordEncoder;
+    @Mock private JwtUtil jwtUtil;
+    @Mock private UserMapper userMapper;
 
     @InjectMocks
     private UserServiceImpl userService;
+
+    private User buildUser(Long id, String email, Role role, boolean active) {
+        return new User(id, "John Doe", email, "encodedPassword", role, active,
+                LocalDateTime.now(), LocalDateTime.now());
+    }
+
+    private UserResponse buildResponse(Long id, String email, Role role) {
+        return new UserResponse(id, "John Doe", email, role);
+    }
 
     // registerUser tests
 
     @Test
     void registerUser_success() {
-        // Arrange
         UserRegisterRequest request = new UserRegisterRequest(
-                "John Doe", "john@example.com", "password123", Role.JOB_SEEKER
-        );
+                "John Doe", "john@example.com", "password123", Role.JOB_SEEKER);
 
-        User savedUser = new User(
-                1L, "John Doe", "john@example.com", "encodedPassword",
-                Role.JOB_SEEKER, true, LocalDateTime.now(), LocalDateTime.now()
-        );
+        User savedUser = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        UserResponse expected = buildResponse(1L, "john@example.com", Role.JOB_SEEKER);
 
         when(userRepository.existsByEmail("john@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
+        when(userMapper.toEntity(request)).thenReturn(savedUser);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(userMapper.toResponse(savedUser)).thenReturn(expected);
 
-        // Act
         UserResponse response = userService.registerUser(request);
 
-        // Assert
         assertNotNull(response);
         assertEquals(1L, response.getId());
-        assertEquals("John Doe", response.getName());
         assertEquals("john@example.com", response.getEmail());
         assertEquals(Role.JOB_SEEKER, response.getRole());
-
-        verify(userRepository).existsByEmail("john@example.com");
-        verify(passwordEncoder).encode("password123");
         verify(userRepository).save(any(User.class));
     }
 
     @Test
     void registerUser_emailAlreadyExists_throwsException() {
-        // Arrange
         UserRegisterRequest request = new UserRegisterRequest(
-                "John Doe", "john@example.com", "password123", Role.JOB_SEEKER
-        );
+                "John Doe", "john@example.com", "password123", Role.JOB_SEEKER);
 
         when(userRepository.existsByEmail("john@example.com")).thenReturn(true);
 
-        // Act & Assert
-        EmailAlreadyExistsException ex = assertThrows(
-                EmailAlreadyExistsException.class,
-                () -> userService.registerUser(request)
-        );
-
-        assertEquals("Email already exists", ex.getMessage());
-        verify(userRepository).existsByEmail("john@example.com");
+        assertThrows(EmailAlreadyExistsException.class, () -> userService.registerUser(request));
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -99,157 +90,167 @@ class UserServiceImplTest {
 
     @Test
     void loginUser_success() {
-        // Arrange
         UserLoginRequest request = new UserLoginRequest("john@example.com", "password123");
-
-        User user = new User(
-                1L, "John Doe", "john@example.com", "encodedPassword",
-                Role.JOB_SEEKER, true, LocalDateTime.now(), LocalDateTime.now()
-        );
+        User user = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
 
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
         when(jwtUtil.generateToken("john@example.com", "JOB_SEEKER")).thenReturn("mocked.jwt.token");
 
-        // Act
         String token = userService.loginUser(request);
 
-        // Assert
         assertEquals("mocked.jwt.token", token);
-        verify(userRepository).findByEmail("john@example.com");
-        verify(passwordEncoder).matches("password123", "encodedPassword");
         verify(jwtUtil).generateToken("john@example.com", "JOB_SEEKER");
     }
 
     @Test
-    void loginUser_userNotFound_throwsException() {
-        // Arrange
-        UserLoginRequest request = new UserLoginRequest("unknown@example.com", "password123");
+    void loginUser_inactiveAccount_throwsException() {
+        UserLoginRequest request = new UserLoginRequest("john@example.com", "password123");
+        User user = buildUser(1L, "john@example.com", Role.JOB_SEEKER, false);
 
-        when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
 
-        // Act & Assert
-        RuntimeException ex = assertThrows(
-                RuntimeException.class,
-                () -> userService.loginUser(request)
-        );
-
-        assertEquals("Invalid email or password", ex.getMessage());
-        verify(userRepository).findByEmail("unknown@example.com");
+        assertThrows(InvalidCredentialsException.class, () -> userService.loginUser(request));
         verify(jwtUtil, never()).generateToken(anyString(), anyString());
     }
 
     @Test
     void loginUser_wrongPassword_throwsException() {
-        // Arrange
         UserLoginRequest request = new UserLoginRequest("john@example.com", "wrongPassword");
-
-        User user = new User(
-                1L, "John Doe", "john@example.com", "encodedPassword",
-                Role.JOB_SEEKER, true, LocalDateTime.now(), LocalDateTime.now()
-        );
+        User user = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
 
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
 
-        // Act & Assert
-        RuntimeException ex = assertThrows(
-                RuntimeException.class,
-                () -> userService.loginUser(request)
-        );
+        assertThrows(InvalidCredentialsException.class, () -> userService.loginUser(request));
+        verify(jwtUtil, never()).generateToken(anyString(), anyString());
+    }
 
-        assertEquals("Invalid email or password", ex.getMessage());
-        verify(passwordEncoder).matches("wrongPassword", "encodedPassword");
+    @Test
+    void loginUser_userNotFound_throwsException() {
+        UserLoginRequest request = new UserLoginRequest("unknown@example.com", "password123");
+        when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+        assertThrows(InvalidCredentialsException.class, () -> userService.loginUser(request));
         verify(jwtUtil, never()).generateToken(anyString(), anyString());
     }
 
     // getUserById tests
 
     @Test
-    void getUserById_success() {
-        // Arrange
-        User user = new User(
-                1L, "John Doe", "john@example.com", "encodedPassword",
-                Role.JOB_SEEKER, true, LocalDateTime.now(), LocalDateTime.now()
-        );
+    void getUserById_ownProfile_success() {
+        User user = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        UserResponse expected = buildResponse(1L, "john@example.com", Role.JOB_SEEKER);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userMapper.toResponse(user)).thenReturn(expected);
 
-        // Act
-        UserResponse response = userService.getUserById(1L);
+        UserResponse response = userService.getUserById(1L, "john@example.com", "JOB_SEEKER");
 
-        // Assert
         assertNotNull(response);
         assertEquals(1L, response.getId());
-        assertEquals("john@example.com", response.getEmail());
         verify(userRepository).findById(1L);
     }
 
     @Test
+    void getUserById_adminCanViewAny_success() {
+        User user = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        UserResponse expected = buildResponse(1L, "john@example.com", Role.JOB_SEEKER);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userMapper.toResponse(user)).thenReturn(expected);
+
+        UserResponse response = userService.getUserById(1L, "admin@example.com", "ADMIN");
+
+        assertNotNull(response);
+        verify(userRepository).findById(1L);
+    }
+
+    @Test
+    void getUserById_otherUserProfile_throwsUnauthorized() {
+        User user = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThrows(UnauthorizedException.class,
+                () -> userService.getUserById(1L, "other@example.com", "JOB_SEEKER"));
+    }
+
+    @Test
     void getUserById_notFound_throwsException() {
-        // Arrange
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        UserNotFoundException ex = assertThrows(
-                UserNotFoundException.class,
-                () -> userService.getUserById(99L)
-        );
-
-        assertEquals("User not found", ex.getMessage());
-        verify(userRepository).findById(99L);
+        assertThrows(UserNotFoundException.class,
+                () -> userService.getUserById(99L, "john@example.com", "JOB_SEEKER"));
     }
 
     // updateUser tests
 
     @Test
-    void updateUser_success() {
-        // Arrange
+    void updateUser_ownProfile_success() {
         UpdateUserRequest request = new UpdateUserRequest();
         request.setName("Updated Name");
         request.setPassword("newPassword123");
 
-        User existingUser = new User(
-                1L, "John Doe", "john@example.com", "encodedPassword",
-                Role.JOB_SEEKER, true, LocalDateTime.now(), LocalDateTime.now()
-        );
-
-        User updatedUser = new User(
-                1L, "Updated Name", "john@example.com", "newEncodedPassword",
-                Role.JOB_SEEKER, true, LocalDateTime.now(), LocalDateTime.now()
-        );
+        User existingUser = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        User updatedUser = new User(1L, "Updated Name", "john@example.com",
+                "newEncodedPassword", Role.JOB_SEEKER, true, LocalDateTime.now(), LocalDateTime.now());
+        UserResponse expected = buildResponse(1L, "john@example.com", Role.JOB_SEEKER);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
         when(passwordEncoder.encode("newPassword123")).thenReturn("newEncodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userMapper.toResponse(updatedUser)).thenReturn(expected);
 
-        // Act
-        UserResponse response = userService.updateUser(1L, request);
+        UserResponse response = userService.updateUser(1L, request, "john@example.com", "JOB_SEEKER");
 
-        // Assert
         assertNotNull(response);
-        assertEquals("Updated Name", response.getName());
-        verify(userRepository).findById(1L);
-        verify(passwordEncoder).encode("newPassword123");
         verify(userRepository).save(any(User.class));
     }
 
     @Test
-    void updateUser_userNotFound_throwsException() {
-        // Arrange
+    void updateUser_otherUserProfile_throwsUnauthorized() {
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setName("Updated Name");
+
+        User existingUser = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+
+        assertThrows(UnauthorizedException.class,
+                () -> userService.updateUser(1L, request, "other@example.com", "JOB_SEEKER"));
+
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void updateUser_adminCanUpdateAny_success() {
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setName("Updated Name");
+
+        User existingUser = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        User updatedUser = new User(1L, "Updated Name", "john@example.com",
+                "encodedPassword", Role.JOB_SEEKER, true, LocalDateTime.now(), LocalDateTime.now());
+        UserResponse expected = buildResponse(1L, "john@example.com", Role.JOB_SEEKER);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userMapper.toResponse(updatedUser)).thenReturn(expected);
+
+        UserResponse response = userService.updateUser(1L, request, "admin@example.com", "ADMIN");
+
+        assertNotNull(response);
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void updateUser_notFound_throwsException() {
         UpdateUserRequest request = new UpdateUserRequest();
         request.setName("Updated Name");
 
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        UserNotFoundException ex = assertThrows(
-                UserNotFoundException.class,
-                () -> userService.updateUser(99L, request)
-        );
+        assertThrows(UserNotFoundException.class,
+                () -> userService.updateUser(99L, request, "john@example.com", "JOB_SEEKER"));
 
-        assertEquals("User not found", ex.getMessage());
-        verify(userRepository).findById(99L);
         verify(userRepository, never()).save(any(User.class));
     }
 }

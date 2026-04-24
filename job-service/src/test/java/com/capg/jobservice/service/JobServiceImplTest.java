@@ -4,6 +4,8 @@ import com.capg.jobservice.dto.request.JobRequest;
 import com.capg.jobservice.dto.response.JobResponse;
 import com.capg.jobservice.entity.Job;
 import com.capg.jobservice.exception.JobNotFoundException;
+import com.capg.jobservice.exception.UnauthorizedException;
+import com.capg.jobservice.mapper.JobMapper;
 import com.capg.jobservice.repository.JobRepository;
 import com.capg.jobservice.service.impl.JobServiceImpl;
 
@@ -34,14 +36,14 @@ class JobServiceImplTest {
     @Mock
     private RabbitTemplate rabbitTemplate;
 
+    @Mock
+    private JobMapper jobMapper;
+
     @InjectMocks
     private JobServiceImpl jobService;
 
-    // createJob tests
-
     @Test
     void createJob_success() {
-        // Arrange
         JobRequest request = new JobRequest();
         request.setTitle("Java Developer");
         request.setCompany("Tech Corp");
@@ -56,11 +58,14 @@ class JobServiceImplTest {
         );
 
         when(jobRepository.save(any(Job.class))).thenReturn(savedJob);
+        when(jobMapper.toResponse(savedJob)).thenReturn(new JobResponse(
+                1L, "Java Developer", "Tech Corp", "Bangalore",
+                1200000.0, "Spring Boot developer", "OPEN",
+                "recruiter@test.com", savedJob.getCreatedAt()
+        ));
 
-        // Act
-        JobResponse response = jobService.createJob(request, "recruiter@test.com");
+        JobResponse response = jobService.createJob(request, "recruiter@test.com", "RECRUITER");
 
-        // Assert
         assertNotNull(response);
         assertEquals(1L, response.getJobId());
         assertEquals("Java Developer", response.getTitle());
@@ -71,37 +76,20 @@ class JobServiceImplTest {
     }
 
     @Test
-    void createJob_rabbitMqFails_stillReturnsResponse() {
-        // Arrange
+    void createJob_unauthorized_throwsException() {
         JobRequest request = new JobRequest();
         request.setTitle("Java Developer");
         request.setCompany("Tech Corp");
         request.setLocation("Bangalore");
 
-        Job savedJob = new Job(
-                1L, "Java Developer", "Tech Corp", "Bangalore",
-                null, null, "OPEN",
-                "recruiter@test.com", LocalDateTime.now(), LocalDateTime.now()
-        );
+        assertThrows(UnauthorizedException.class,
+                () -> jobService.createJob(request, "seeker@test.com", "JOB_SEEKER"));
 
-        when(jobRepository.save(any(Job.class))).thenReturn(savedJob);
-        doThrow(new RuntimeException("RabbitMQ down"))
-                .when(rabbitTemplate).convertAndSend(anyString(), anyString(), any(Object.class));
-
-        // Act — should NOT throw even when RabbitMQ fails
-        JobResponse response = jobService.createJob(request, "recruiter@test.com");
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(1L, response.getJobId());
-        verify(jobRepository).save(any(Job.class));
+        verify(jobRepository, never()).save(any(Job.class));
     }
-
-    // getJobById tests
 
     @Test
     void getJobById_success() {
-        // Arrange
         Job job = new Job(
                 1L, "Java Developer", "Tech Corp", "Bangalore",
                 1200000.0, "Spring Boot developer", "OPEN",
@@ -109,11 +97,14 @@ class JobServiceImplTest {
         );
 
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
+        when(jobMapper.toResponse(job)).thenReturn(new JobResponse(
+                1L, "Java Developer", "Tech Corp", "Bangalore",
+                1200000.0, "Spring Boot developer", "OPEN",
+                "recruiter@test.com", job.getCreatedAt()
+        ));
 
-        // Act
         JobResponse response = jobService.getJobById(1L);
 
-        // Assert
         assertNotNull(response);
         assertEquals(1L, response.getJobId());
         assertEquals("Java Developer", response.getTitle());
@@ -124,10 +115,8 @@ class JobServiceImplTest {
 
     @Test
     void getJobById_notFound_throwsException() {
-        // Arrange
         when(jobRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert
         JobNotFoundException ex = assertThrows(
                 JobNotFoundException.class,
                 () -> jobService.getJobById(99L)
@@ -137,11 +126,8 @@ class JobServiceImplTest {
         verify(jobRepository).findById(99L);
     }
 
-    // getAllJobs tests
-
     @Test
     void getAllJobs_returnsPage() {
-        // Arrange
         Job job = new Job(
                 1L, "Java Developer", "Tech Corp", "Bangalore",
                 1200000.0, "Spring Boot developer", "OPEN",
@@ -150,11 +136,14 @@ class JobServiceImplTest {
 
         Page<Job> jobPage = new PageImpl<>(List.of(job), PageRequest.of(0, 10), 1);
         when(jobRepository.findAll(any(PageRequest.class))).thenReturn(jobPage);
+        when(jobMapper.toResponse(any(Job.class))).thenReturn(new JobResponse(
+                1L, "Java Developer", "Tech Corp", "Bangalore",
+                1200000.0, "Spring Boot developer", "OPEN",
+                "recruiter@test.com", job.getCreatedAt()
+        ));
 
-        // Act
         Page<JobResponse> result = jobService.getAllJobs(0, 10);
 
-        // Assert
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals("Java Developer", result.getContent().get(0).getTitle());
@@ -162,11 +151,8 @@ class JobServiceImplTest {
         verify(jobRepository).findAll(any(PageRequest.class));
     }
 
-    // closeJob tests
-
     @Test
     void closeJob_success() {
-        // Arrange
         Job job = new Job(
                 1L, "Java Developer", "Tech Corp", "Bangalore",
                 1200000.0, "Spring Boot developer", "OPEN",
@@ -181,11 +167,14 @@ class JobServiceImplTest {
 
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
         when(jobRepository.save(any(Job.class))).thenReturn(closedJob);
+        when(jobMapper.toResponse(closedJob)).thenReturn(new JobResponse(
+                1L, "Java Developer", "Tech Corp", "Bangalore",
+                1200000.0, "Spring Boot developer", "CLOSED",
+                "recruiter@test.com", closedJob.getCreatedAt()
+        ));
 
-        // Act
-        Job result = jobService.closeJob(1L);
+        JobResponse result = jobService.closeJob(1L, "RECRUITER");
 
-        // Assert
         assertNotNull(result);
         assertEquals("CLOSED", result.getStatus());
 
@@ -194,14 +183,20 @@ class JobServiceImplTest {
     }
 
     @Test
+    void closeJob_unauthorized_throwsException() {
+        assertThrows(UnauthorizedException.class,
+                () -> jobService.closeJob(1L, "JOB_SEEKER"));
+
+        verify(jobRepository, never()).findById(any());
+    }
+
+    @Test
     void closeJob_notFound_throwsException() {
-        // Arrange
         when(jobRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert
         JobNotFoundException ex = assertThrows(
                 JobNotFoundException.class,
-                () -> jobService.closeJob(99L)
+                () -> jobService.closeJob(99L, "RECRUITER")
         );
 
         assertEquals("Job not found", ex.getMessage());

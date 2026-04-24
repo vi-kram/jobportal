@@ -2,6 +2,7 @@ package com.capg.notificationservice.consumer;
 
 import com.capg.notificationservice.config.RabbitMQConfig;
 import com.capg.notificationservice.dto.ApplicationEvent;
+import com.capg.notificationservice.dto.JobClosedEvent;
 import com.capg.notificationservice.dto.JobEvent;
 import com.capg.notificationservice.dto.ResumeEvent;
 import com.capg.notificationservice.service.EmailService;
@@ -19,7 +20,7 @@ public class NotificationConsumer {
     private final EmailService emailService;
 
     @Value("${spring.mail.username}")
-    private String fromEmail;
+    private String adminEmail;
 
     public NotificationConsumer(EmailService emailService) {
         this.emailService = emailService;
@@ -29,10 +30,10 @@ public class NotificationConsumer {
     public void handleJobCreated(JobEvent event) {
         log.info("[Notification] Job created jobId={} title={}", event.getJobId(), event.getTitle());
         emailService.send(
-            fromEmail,
-            "New Job Posted - " + event.getTitle(),
-            "Hi,\n\nA new job \"" + event.getTitle() + "\" at " + event.getCompany() +
-            " in " + event.getLocation() + " has been posted." +
+            event.getCreatedBy(),
+            "Job Posted Successfully - " + event.getTitle(),
+            "Hi,\n\nYour job \"" + event.getTitle() + "\" at " + event.getCompany() +
+            " in " + event.getLocation() + " has been posted successfully." +
             "\nSalary: " + event.getSalary() +
             "\n\nJob Portal Team"
         );
@@ -52,13 +53,13 @@ public class NotificationConsumer {
     }
 
     @RabbitListener(queues = RabbitMQConfig.JOB_CLOSED_QUEUE)
-    public void handleJobClosed(JobEvent event) {
-        log.info("[Notification] Job closed jobId={}", event.getJobId());
+    public void handleJobClosed(JobClosedEvent event) {
+        log.info("[Notification] Job closed jobId={} title={}", event.getJobId(), event.getTitle());
         emailService.send(
-            fromEmail,
+            event.getCreatedBy(),
             "Job Closed - " + event.getTitle(),
-            "Hi,\n\nThe job posting \"" + event.getTitle() + "\" at " + event.getCompany() +
-            " has been closed.\n\nJob Portal Team"
+            "Hi,\n\nYour job posting \"" + event.getTitle() + "\" has been closed successfully." +
+            "\n\nJob Portal Team"
         );
     }
 

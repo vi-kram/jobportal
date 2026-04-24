@@ -12,53 +12,24 @@ public class Resume {
     private Long resumeId;
 
     @Column(nullable = false)
-    private Long userId;
+    private String userEmail;
 
     @Column(nullable = false)
     private String fileUrl;
 
     private LocalDateTime uploadedAt;
 
-    // Constructors
     public Resume() {}
 
-    public Resume(Long resumeId, Long userId, String fileUrl, LocalDateTime uploadedAt) {
-        this.resumeId = resumeId;
-        this.userId = userId;
-        this.fileUrl = fileUrl;
-        this.uploadedAt = uploadedAt;
-    }
+    public Long getResumeId() { return resumeId; }
+    public void setResumeId(Long resumeId) { this.resumeId = resumeId; }
 
-    // Getters and Setters
-    public Long getResumeId() {
-        return resumeId;
-    }
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 
-    public void setResumeId(Long resumeId) {
-        this.resumeId = resumeId;
-    }
+    public String getFileUrl() { return fileUrl; }
+    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getFileUrl() {
-        return fileUrl;
-    }
-
-    public void setFileUrl(String fileUrl) {
-        this.fileUrl = fileUrl;
-    }
-
-    public LocalDateTime getUploadedAt() {
-        return uploadedAt;
-    }
-
-    public void setUploadedAt(LocalDateTime uploadedAt) {
-        this.uploadedAt = uploadedAt;
-    }
+    public LocalDateTime getUploadedAt() { return uploadedAt; }
+    public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
 }

@@ -11,7 +11,9 @@ public interface UserService {
 
     String loginUser(UserLoginRequest request);
 
-    UserResponse getUserById(Long id);
+    UserResponse getUserById(Long id, String email, String role);
 
-    UserResponse updateUser(Long id, UpdateUserRequest request);
+    UserResponse getUserByEmail(String email);
+
+    UserResponse updateUser(Long id, UpdateUserRequest request, String email, String role);
 }

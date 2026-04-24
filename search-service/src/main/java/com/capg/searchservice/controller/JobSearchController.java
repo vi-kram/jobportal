@@ -1,8 +1,9 @@
 package com.capg.searchservice.controller;
 
-import com.capg.searchservice.entity.Job;
+import com.capg.searchservice.dto.JobSearchResponse;
 import com.capg.searchservice.service.JobSearchService;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,20 +16,27 @@ public class JobSearchController {
         this.service = service;
     }
 
-    @GetMapping("/jobs")
-    public Page<Job> searchJobs(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String location,
+    @GetMapping("/all/jobs")
+    public ResponseEntity<Page<JobSearchResponse>> getAllOpenJobs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return service.search(keyword, location, page, size);
+        return ResponseEntity.ok(service.getAllOpenJobs(page, size));
     }
 
-    @GetMapping("/jobs/skills")
-    public Page<Job> searchBySkills(
-            @RequestParam String skills,
+    @GetMapping("/jobs")
+    public ResponseEntity<Page<JobSearchResponse>> searchJobs(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String company,
+            @RequestParam(required = false) Double minSalary,
+            @RequestParam(required = false) Double maxSalary,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return service.searchBySkills(skills, page, size);
+        return ResponseEntity.ok(service.search(keyword, location, company, minSalary, maxSalary, page, size));
+    }
+
+    @GetMapping("/jobs/{jobId}")
+    public ResponseEntity<JobSearchResponse> getJobById(@PathVariable Long jobId) {
+        return ResponseEntity.ok(service.getJobById(jobId));
     }
 }

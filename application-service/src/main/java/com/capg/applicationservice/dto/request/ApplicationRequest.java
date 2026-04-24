@@ -1,7 +1,10 @@
 package com.capg.applicationservice.dto.request;
 
+import jakarta.validation.constraints.NotNull;
+
 public class ApplicationRequest {
 
+	@NotNull(message = "Job ID is required")
 	private Long jobId;
 
 	public ApplicationRequest() {

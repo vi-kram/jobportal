@@ -54,34 +54,114 @@ public class JwtAuthFilter implements GlobalFilter {
 
         //  ROLE-BASED ACCESS CONTROL
 
-        //  RECRUITER → can CREATE jobs only
+        // all authenticated users → view own profile
+        if (path.equals("/api/users/me") && method.equals("GET")
+                && !role.equals("JOB_SEEKER") && !role.equals("RECRUITER") && !role.equals("ADMIN")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // all authenticated users → get user by id
+        if (path.matches("/api/users/\\d+") && method.equals("GET")
+                && !role.equals("JOB_SEEKER") && !role.equals("RECRUITER") && !role.equals("ADMIN")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // all authenticated users → update own profile (ownership checked in service)
+        if (path.matches("/api/users/\\d+") && method.equals("PUT")
+                && !role.equals("JOB_SEEKER") && !role.equals("RECRUITER") && !role.equals("ADMIN")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // RECRUITER only → create job
         if (path.equals("/api/jobs") && method.equals("POST")
                 && !role.equals("RECRUITER")) {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
         }
 
-        // 👤 JOB SEEKER → can APPLY only
+        // RECRUITER only → close job
+        if (path.matches("/api/jobs/\\d+/close") && method.equals("PUT")
+                && !role.equals("RECRUITER")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // JOB_SEEKER, RECRUITER, ADMIN → read jobs
+        if (path.startsWith("/api/jobs") && method.equals("GET")
+                && !role.equals("JOB_SEEKER") && !role.equals("RECRUITER") && !role.equals("ADMIN")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // JOB_SEEKER only → apply for job
         if (path.equals("/api/applications") && method.equals("POST")
                 && !role.equals("JOB_SEEKER")) {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
         }
 
-        //  RECRUITER → view applicants
-        if (path.startsWith("/api/applications/job") && !role.equals("RECRUITER")) {
+        // JOB_SEEKER only → view own applications
+        if (path.equals("/api/applications/me") && method.equals("GET")
+                && !role.equals("JOB_SEEKER")) {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
         }
 
-        //  JOB SEEKER → view own applications
-        if (path.equals("/api/applications/me") && !role.equals("JOB_SEEKER")) {
+        // RECRUITER only → view applicants for a job
+        if (path.startsWith("/api/applications/job") && method.equals("GET")
+                && !role.equals("RECRUITER")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // RECRUITER only → update application status
+        if (path.matches("/api/applications/[^/]+/status") && method.equals("PUT")
+                && !role.equals("RECRUITER")) {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
         }
 
         //  ADMIN only endpoints (optional future use)
         if (path.startsWith("/api/admin") && !role.equals("ADMIN")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // JOB_SEEKER only → upload resume (URL or file)
+        if (method.equals("POST")
+                && (path.equals("/api/resumes") || path.equals("/api/resumes/upload"))
+                && !role.equals("JOB_SEEKER")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // JOB_SEEKER only → view own resumes
+        if (path.equals("/api/resumes/me") && method.equals("GET")
+                && !role.equals("JOB_SEEKER")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // JOB_SEEKER only → delete own resume
+        if (path.matches("/api/resumes/\\d+") && method.equals("DELETE")
+                && !role.equals("JOB_SEEKER")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // JOB_SEEKER, RECRUITER, ADMIN → get resume by id
+        if (path.matches("/api/resumes/\\d+") && method.equals("GET")
+                && !role.equals("JOB_SEEKER") && !role.equals("RECRUITER") && !role.equals("ADMIN")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // JOB_SEEKER, RECRUITER, ADMIN → search jobs
+        if (path.startsWith("/search") && method.equals("GET")
+                && !role.equals("JOB_SEEKER") && !role.equals("RECRUITER") && !role.equals("ADMIN")) {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
         }

@@ -33,7 +33,7 @@ public class JwtUtil {
                 .setClaims(claims)   //Adds all custom claims (like role) to the token payload
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();   //Converts everything into a final JWT string
     }

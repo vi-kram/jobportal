@@ -7,9 +7,13 @@ import java.util.List;
 
 public interface ResumeService {
 
-    ResumeResponse uploadResume(ResumeUploadRequest request);
+    ResumeResponse uploadResume(ResumeUploadRequest request, String email, String role);
 
-    ResumeResponse getResumeById(Long resumeId);
+    ResumeResponse uploadResumeFile(org.springframework.web.multipart.MultipartFile file, String email, String role);
 
-    List<ResumeResponse> getResumesByUserId(Long userId);
+    ResumeResponse getResumeById(Long resumeId, String email, String role);
+
+    List<ResumeResponse> getMyResumes(String email);
+
+    void deleteResume(Long resumeId, String email);
 }

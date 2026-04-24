@@ -12,14 +12,23 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(JobNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleJobNotFound(JobNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage());
+    }
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "Not Found",
-                ex.getMessage()
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex) {
+        return build(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage());
+    }
+
+    private ResponseEntity<ErrorResponse> build(HttpStatus status, String error, String message) {
+        return new ResponseEntity<>(
+                new ErrorResponse(LocalDateTime.now(), status.value(), error, message),
+                status
         );
-
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 }

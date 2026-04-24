@@ -8,6 +8,7 @@ public class JobEvent {
     private String company;
     private String location;
     private Double salary;
+    private String createdBy;
 
     public JobEvent() {}
 
@@ -28,4 +29,7 @@ public class JobEvent {
 
     public Double getSalary() { return salary; }
     public void setSalary(Double salary) { this.salary = salary; }
+
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 }

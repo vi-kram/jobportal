@@ -4,12 +4,14 @@ import com.capg.resumeservice.dto.request.ResumeUploadRequest;
 import com.capg.resumeservice.dto.response.ResumeResponse;
 import com.capg.resumeservice.service.ResumeService;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/resumes")
@@ -21,29 +23,41 @@ public class ResumeController {
         this.resumeService = resumeService;
     }
 
-    //  Upload Resume
     @PostMapping
     public ResponseEntity<ResumeResponse> uploadResume(
-            @Valid @RequestBody ResumeUploadRequest request) {
-
-        ResumeResponse response = resumeService.uploadResume(request);
-        return ResponseEntity.ok(response);
+            @Valid @RequestBody ResumeUploadRequest request,
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
+            @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
+        return ResponseEntity.ok(resumeService.uploadResume(request, email, role));
     }
 
-    //  Get Resume by ID
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public ResponseEntity<ResumeResponse> uploadResumeFile(
+            @RequestParam("file") MultipartFile file,
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
+            @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
+        return ResponseEntity.ok(resumeService.uploadResumeFile(file, email, role));
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<ResumeResponse> getResumeById(@PathVariable Long id) {
-
-        ResumeResponse response = resumeService.getResumeById(id);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ResumeResponse> getResumeById(
+            @PathVariable Long id,
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
+            @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
+        return ResponseEntity.ok(resumeService.getResumeById(id, email, role));
     }
 
-    //  Get Resumes by User
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ResumeResponse>> getResumesByUserId(
-            @PathVariable Long userId) {
+    @GetMapping("/me")
+    public ResponseEntity<List<ResumeResponse>> getMyResumes(
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email) {
+        return ResponseEntity.ok(resumeService.getMyResumes(email));
+    }
 
-        List<ResumeResponse> responses = resumeService.getResumesByUserId(userId);
-        return ResponseEntity.ok(responses);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteResume(
+            @PathVariable Long id,
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email) {
+        resumeService.deleteResume(id, email);
+        return ResponseEntity.noContent().build();
     }
 }

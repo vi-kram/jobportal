@@ -6,6 +6,7 @@ import com.capg.userservice.dto.request.UserRegisterRequest;
 import com.capg.userservice.dto.response.UserResponse;
 import com.capg.userservice.service.UserService;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
@@ -43,28 +44,28 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUser(
+            @PathVariable Long id,
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
+            @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
         log.info("GET /api/users/{}", id);
-        return ResponseEntity.ok(userService.getUserById(id));
+        return ResponseEntity.ok(userService.getUserById(id, email, role));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateUserRequest request) {
+            @Valid @RequestBody UpdateUserRequest request,
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
+            @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
         log.info("PUT /api/users/{}", id);
-        return ResponseEntity.ok(userService.updateUser(id, request));
+        return ResponseEntity.ok(userService.updateUser(id, request, email, role));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<String> getLoggedInUser(
-            @RequestHeader("X-User-Email") String email,
-            @RequestHeader("X-User-Role") String role) {
-        return ResponseEntity.ok("Email: " + email + " Role: " + role);
-    }
-
-    @GetMapping("/admin/test")
-    public String adminTest() {
-        return "Admin Access Success";
+    public ResponseEntity<UserResponse> getLoggedInUser(
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email) {
+        log.info("GET /api/users/me email={}", email);
+        return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 }

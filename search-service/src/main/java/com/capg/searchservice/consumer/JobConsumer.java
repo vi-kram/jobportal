@@ -1,6 +1,7 @@
 package com.capg.searchservice.consumer;
 
 import com.capg.searchservice.config.RabbitMQConfig;
+import com.capg.searchservice.dto.JobClosedEvent;
 import com.capg.searchservice.dto.JobEvent;
 import com.capg.searchservice.entity.Job;
 import com.capg.searchservice.repository.JobRepository;
@@ -21,26 +22,32 @@ public class JobConsumer {
         this.repository = repository;
     }
 
-    @RabbitListener(queues = RabbitMQConfig.JOB_QUEUE)
-    public void consume(JobEvent event) {
-        log.info("Job event received jobId={} title={}", event.getJobId(), event.getTitle());
+    @RabbitListener(queues = RabbitMQConfig.JOB_CREATED_QUEUE)
+    public void handleJobCreated(JobEvent event) {
+        log.info("Job created event received jobId={} title={}", event.getJobId(), event.getTitle());
 
         Job job = new Job();
+        job.setJobId(event.getJobId());
         job.setTitle(event.getTitle());
         job.setCompany(event.getCompany());
         job.setLocation(event.getLocation());
         job.setSalary(event.getSalary());
         job.setDescription(event.getDescription());
+        job.setSkills(event.getSkills());
+        job.setStatus("OPEN");
 
         repository.save(job);
         log.info("Job indexed for search jobId={} title={}", event.getJobId(), event.getTitle());
     }
-}  
 
+    @RabbitListener(queues = RabbitMQConfig.JOB_CLOSED_QUEUE)
+    public void handleJobClosed(JobClosedEvent event) {
+        log.info("Job closed event received jobId={}", event.getJobId());
 
-//1. Job Service creates job
-//2. Sends JobEvent → RabbitMQ (job.queue)
-//3. Search Service listens
-//4. consume() method triggered
-//5. Convert JobEvent → Job
-//6. Save into database
+        repository.findById(event.getJobId()).ifPresentOrElse(job -> {
+            job.setStatus("CLOSED");
+            repository.save(job);
+            log.info("Job marked as CLOSED in search index jobId={}", event.getJobId());
+        }, () -> log.warn("Job not found in search index jobId={}", event.getJobId()));
+    }
+}

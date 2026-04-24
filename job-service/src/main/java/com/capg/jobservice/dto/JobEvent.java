@@ -7,8 +7,8 @@ public class JobEvent {
     private String description;
     private String company;
     private String location;
-//    private String skills;
     private Double salary;
+    private String createdBy;
 
     public JobEvent() {}
 
@@ -27,9 +27,9 @@ public class JobEvent {
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
 
-//    public String getSkills() { return skills; }
-//    public void setSkills(String skills) { this.skills = skills; }
-
     public Double getSalary() { return salary; }
     public void setSalary(Double salary) { this.salary = salary; }
+
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 }

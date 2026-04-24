@@ -5,56 +5,44 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", 404);
-        response.put("error", "Not Found");
-        response.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage());
     }
 
     @ExceptionHandler(AlreadyAppliedException.class)
-    public ResponseEntity<Map<String, Object>> handleConflict(AlreadyAppliedException ex) {
+    public ResponseEntity<ErrorResponse> handleConflict(AlreadyAppliedException ex) {
+        return build(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
+    }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", 409);
-        response.put("error", "Conflict");
-        response.put("message", ex.getMessage());
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex) {
+        return build(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage());
+    }
 
-        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    @ExceptionHandler(InvalidStatusException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidStatus(InvalidStatusException ex) {
+        return build(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage());
+    }
+
+    @ExceptionHandler(AlreadyRejectedException.class)
+    public ResponseEntity<ErrorResponse> handleAlreadyRejected(AlreadyRejectedException ex) {
+        return build(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", 500);
-        response.put("error", "Internal Server Error");
-        response.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage());
     }
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<Map<String, Object>> handleUnauthorized(UnauthorizedException ex) {
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", 403);
-        response.put("error", "Forbidden");
-        response.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    private ResponseEntity<ErrorResponse> build(HttpStatus status, String error, String message) {
+        return new ResponseEntity<>(
+                new ErrorResponse(LocalDateTime.now(), status.value(), error, message),
+                status
+        );
     }
 }

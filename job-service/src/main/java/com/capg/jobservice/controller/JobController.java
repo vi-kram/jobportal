@@ -2,9 +2,9 @@ package com.capg.jobservice.controller;
 
 import com.capg.jobservice.dto.request.JobRequest;
 import com.capg.jobservice.dto.response.JobResponse;
-import com.capg.jobservice.entity.Job;
 import com.capg.jobservice.service.JobService;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/jobs")
@@ -30,10 +28,10 @@ public class JobController {
     @PostMapping
     public ResponseEntity<JobResponse> createJob(
             @Valid @RequestBody JobRequest request,
-            @RequestHeader("X-User-Email") String email) {
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
+            @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
         log.info("POST /api/jobs recruiter={}", email);
-        JobResponse response = jobService.createJob(request, email);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(jobService.createJob(request, email, role));
     }
 
     @GetMapping("/{jobId}")
@@ -51,9 +49,10 @@ public class JobController {
     }
 
     @PutMapping("/{id}/close")
-    public ResponseEntity<Job> closeJob(@PathVariable Long id) {
+    public ResponseEntity<JobResponse> closeJob(
+            @PathVariable Long id,
+            @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
         log.info("PUT /api/jobs/{}/close", id);
-        Job job = jobService.closeJob(id);
-        return ResponseEntity.ok(job);
+        return ResponseEntity.ok(jobService.closeJob(id, role));
     }
 }

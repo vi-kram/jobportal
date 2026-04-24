@@ -1,11 +1,14 @@
 package com.capg.applicationservice.service.impl;
 
 import com.capg.applicationservice.client.JobClient;
+import com.capg.applicationservice.dto.ApplicationEvent;
 import com.capg.applicationservice.dto.request.ApplicationRequest;
 import com.capg.applicationservice.dto.response.ApplicationResponse;
 import com.capg.applicationservice.entity.Application;
 import com.capg.applicationservice.entity.ApplicationStatus;
 import com.capg.applicationservice.exception.AlreadyAppliedException;
+import com.capg.applicationservice.exception.AlreadyRejectedException;
+import com.capg.applicationservice.exception.InvalidStatusException;
 import com.capg.applicationservice.exception.ResourceNotFoundException;
 import com.capg.applicationservice.exception.UnauthorizedException;
 import com.capg.applicationservice.repository.ApplicationRepository;
@@ -21,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.UUID;
 
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
@@ -73,15 +76,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         log.info("Application saved applicationId={} jobId={} email={}", saved.getApplicationId(), saved.getJobId(), email);
 
         try {
-            Map<String, Object> message = new HashMap<>();
-            message.put("jobId", saved.getJobId());
-            message.put("candidateId", saved.getUserEmail());
-
-            rabbitTemplate.convertAndSend(
-                    "jobportal.exchange",
-                    "job.applied",
-                    message
+            ApplicationEvent event = new ApplicationEvent(
+                    saved.getApplicationId().toString(),
+                    saved.getJobId(),
+                    saved.getUserEmail(),
+                    saved.getStatus().name()
             );
+            rabbitTemplate.convertAndSend("jobportal.exchange", "job.applied", event);
             log.info("RabbitMQ event published exchange=jobportal.exchange routingKey=job.applied jobId={}", saved.getJobId());
 
         } catch (Exception e) {
@@ -131,12 +132,12 @@ public class ApplicationServiceImpl implements ApplicationService {
             newStatus = ApplicationStatus.valueOf(status.toUpperCase());
         } catch (Exception e) {
             log.warn("Invalid status value={}", status);
-            throw new RuntimeException("Invalid status. Allowed: APPLIED, SHORTLISTED, INTERVIEW_SCHEDULED, REJECTED");
+            throw new InvalidStatusException("Invalid status. Allowed: APPLIED, SHORTLISTED, INTERVIEW_SCHEDULED, REJECTED");
         }
 
         if (app.getStatus() == ApplicationStatus.REJECTED) {
             log.warn("Cannot update rejected application applicationId={}", applicationId);
-            throw new RuntimeException("Cannot update a rejected application");
+            throw new AlreadyRejectedException("Cannot update a rejected application");
         }
 
         app.setStatus(newStatus);
