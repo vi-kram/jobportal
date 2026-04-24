@@ -40,4 +40,5 @@ jobs:
             -Dsonar.projectName=job-portal \
             -Dsonar.organization=kkeshavv \
             -Dspring.cloud.config.enabled=false \
+            -Dsurefire.useFile=false \
             -f pom.xml
