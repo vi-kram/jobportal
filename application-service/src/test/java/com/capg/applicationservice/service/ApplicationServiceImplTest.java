@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -198,5 +199,27 @@ class ApplicationServiceImplTest {
 
         assertThrows(com.capg.applicationservice.exception.InvalidStatusException.class,
                 () -> applicationService.updateStatus(appId, "INVALID_STATUS", "RECRUITER"));
+    }
+
+    @Test
+    void apply_rabbitMqFailure_stillReturnsResponse() {
+        ApplicationRequest request = new ApplicationRequest(1L);
+        UUID appId = UUID.randomUUID();
+        LocalDateTime now = LocalDateTime.now();
+
+        Application saved = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
+        ApplicationResponse expectedResponse = new ApplicationResponse(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
+
+        when(jobClient.getJobById(1L)).thenReturn(new Object());
+        when(repository.existsByJobIdAndUserEmail(1L, "seeker@test.com")).thenReturn(false);
+        when(repository.save(any(Application.class))).thenReturn(saved);
+        when(applicationMapper.toResponse(saved)).thenReturn(expectedResponse);
+        doThrow(new RuntimeException("RabbitMQ down"))
+                .when(rabbitTemplate).convertAndSend(anyString(), anyString(), any(Object.class));
+
+        ApplicationResponse response = applicationService.apply(request, "seeker@test.com", "JOB_SEEKER");
+
+        assertNotNull(response);
+        assertEquals(appId, response.getApplicationId());
     }
 }

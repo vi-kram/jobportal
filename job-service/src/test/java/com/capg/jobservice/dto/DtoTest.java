@@ -73,4 +73,14 @@ class DtoTest {
         assertEquals(2L, res.getJobId());
         assertEquals("Python Developer", res.getTitle());
     }
+
+    @Test
+    void jobResponse_noArgConstructor_works() {
+        JobResponse res = new JobResponse();
+        assertNotNull(res);
+        res.setJobId(1L);
+        res.setTitle("Java Developer");
+        assertEquals(1L, res.getJobId());
+        assertEquals("Java Developer", res.getTitle());
+    }
 }

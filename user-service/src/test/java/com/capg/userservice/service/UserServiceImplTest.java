@@ -299,4 +299,25 @@ class UserServiceImplTest {
         assertNotNull(response);
         verify(passwordEncoder, never()).encode(anyString());
     }
+
+    @Test
+    void updateUser_blankPassword_doesNotEncodePassword() {
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setName("Updated Name");
+        request.setPassword("   ");
+
+        User existingUser = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        User updatedUser = new User(1L, "Updated Name", "john@example.com",
+                "encodedPassword", Role.JOB_SEEKER, true, LocalDateTime.now(), LocalDateTime.now());
+        UserResponse expected = buildResponse(1L, "john@example.com", Role.JOB_SEEKER);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userMapper.toResponse(updatedUser)).thenReturn(expected);
+
+        UserResponse response = userService.updateUser(1L, request, "john@example.com", "JOB_SEEKER");
+
+        assertNotNull(response);
+        verify(passwordEncoder, never()).encode(anyString());
+    }
 }

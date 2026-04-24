@@ -19,6 +19,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @WebMvcTest(ResumeController.class)
 class ResumeControllerTest {
@@ -76,5 +77,16 @@ class ResumeControllerTest {
         mockMvc.perform(delete("/api/resumes/1")
                 .header("X-User-Email", "seeker@test.com"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void uploadResumeFile_returns200() throws Exception {
+        when(resumeService.uploadResumeFile(any(), anyString(), anyString())).thenReturn(buildResponse());
+
+        mockMvc.perform(multipart("/api/resumes/upload")
+                .file("file", "pdf content".getBytes())
+                .header("X-User-Email", "seeker@test.com")
+                .header("X-User-Role", "JOB_SEEKER"))
+                .andExpect(status().isOk());
     }
 }

@@ -264,4 +264,50 @@ class ResumeServiceImplTest {
         assertThrows(IllegalArgumentException.class,
                 () -> resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER"));
     }
+
+    @Test
+    void uploadResumeFile_docExtension_success(@TempDir Path tempDir) {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.doc", "application/msword", "doc content".getBytes());
+
+        Resume saved = buildResume(1L, "seeker@test.com");
+        ResumeResponse expected = buildResponse(1L, "seeker@test.com");
+
+        ReflectionTestUtils.setField(resumeService, "uploadDir", tempDir.toString());
+        when(resumeRepository.save(any(Resume.class))).thenReturn(saved);
+        when(resumeMapper.toResponse(saved)).thenReturn(expected);
+
+        ResumeResponse response = resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER");
+
+        assertNotNull(response);
+        verify(resumeRepository).save(any(Resume.class));
+    }
+
+    @Test
+    void uploadResumeFile_noExtension_throwsException() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "testfile", "application/octet-stream", "content".getBytes());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER"));
+    }
+
+    @Test
+    void uploadResume_rabbitMqFailure_stillReturnsResponse() {
+        ResumeUploadRequest request = new ResumeUploadRequest();
+        request.setFileUrl("/uploads/resumes/test.pdf");
+
+        Resume saved = buildResume(1L, "seeker@test.com");
+        ResumeResponse expected = buildResponse(1L, "seeker@test.com");
+
+        when(resumeRepository.save(any(Resume.class))).thenReturn(saved);
+        when(resumeMapper.toResponse(saved)).thenReturn(expected);
+        doThrow(new RuntimeException("RabbitMQ down"))
+                .when(rabbitTemplate).convertAndSend(anyString(), anyString(), any(Object.class));
+
+        ResumeResponse response = resumeService.uploadResume(request, "seeker@test.com", "JOB_SEEKER");
+
+        assertNotNull(response);
+        assertEquals(1L, response.getResumeId());
+    }
 }

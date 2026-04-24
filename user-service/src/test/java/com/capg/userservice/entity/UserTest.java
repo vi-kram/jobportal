@@ -34,4 +34,14 @@ class UserTest {
         assertEquals(Role.RECRUITER, user.getRole());
         assertFalse(user.isActive());
     }
+
+    @Test
+    void user_noArgConstructor_works() {
+        User user = new User();
+        assertNotNull(user);
+        user.setId(1L);
+        user.setName("Test");
+        assertEquals(1L, user.getId());
+        assertEquals("Test", user.getName());
+    }
 }

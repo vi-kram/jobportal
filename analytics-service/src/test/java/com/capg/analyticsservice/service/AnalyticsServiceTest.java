@@ -185,4 +185,32 @@ class AnalyticsServiceTest {
         assertNotNull(summary);
         assertTrue(summary.isEmpty());
     }
+
+    // =============================================
+    // getJobMetrics / getUserMetrics tests
+    // =============================================
+
+    @Test
+    void getJobMetrics_returnsPage() {
+        org.springframework.data.domain.Page<JobApplicationMetrics> page =
+                new org.springframework.data.domain.PageImpl<>(List.of(new JobApplicationMetrics(1L, 5L)));
+        when(jobRepo.findAll(org.springframework.data.domain.PageRequest.of(0, 10))).thenReturn(page);
+
+        org.springframework.data.domain.Page<JobApplicationMetrics> result = analyticsService.getJobMetrics(0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void getUserMetrics_returnsPage() {
+        org.springframework.data.domain.Page<UserApplicationMetrics> page =
+                new org.springframework.data.domain.PageImpl<>(List.of(new UserApplicationMetrics("seeker@test.com", 3L)));
+        when(userRepo.findAll(org.springframework.data.domain.PageRequest.of(0, 10))).thenReturn(page);
+
+        org.springframework.data.domain.Page<UserApplicationMetrics> result = analyticsService.getUserMetrics(0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+    }
 }

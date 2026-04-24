@@ -25,4 +25,17 @@ class ErrorResponseTest {
         assertEquals("Server Error", response.getError());
         assertEquals("Something went wrong", response.getMessage());
     }
+
+    @Test
+    void errorResponse_noArgConstructor_works() {
+        ErrorResponse response = new ErrorResponse();
+        assertNotNull(response);
+        LocalDateTime now = LocalDateTime.now();
+        response.setTimestamp(now);
+        response.setStatus(404);
+        response.setError("Not Found");
+        response.setMessage("Resource not found");
+        assertEquals(404, response.getStatus());
+        assertEquals("Not Found", response.getError());
+    }
 }

@@ -7,7 +7,8 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  sonar-analysis:
+
+  sonar-user-service:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,8 +17,8 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'zulu'
+          java-version: '17'
+          distribution: 'temurin'
 
       - uses: actions/cache@v4
         with:
@@ -28,17 +29,247 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-m2-user-${{ hashFiles('user-service/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build and Analyze all services
+      - name: Test & Analyze user-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          cd user-service && chmod +x mvnw && ./mvnw verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=kkeshavv_job-portal \
-            -Dsonar.projectName=job-portal \
             -Dsonar.organization=kkeshavv \
+            -Dsonar.sources=src/main/java \
+            -Dsonar.tests=src/test/java \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
             -Dspring.cloud.config.enabled=false \
-            -Dmaven.test.failure.ignore=true \
-            -f pom.xml
+            -Dmaven.test.failure.ignore=true
+
+  sonar-job-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-job-${{ hashFiles('job-service/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Test & Analyze job-service
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd job-service && chmod +x mvnw && ./mvnw verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=kkeshavv_job-portal \
+            -Dsonar.organization=kkeshavv \
+            -Dsonar.sources=src/main/java \
+            -Dsonar.tests=src/test/java \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dspring.cloud.config.enabled=false \
+            -Dmaven.test.failure.ignore=true
+
+  sonar-application-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-app-${{ hashFiles('application-service/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Test & Analyze application-service
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd application-service && chmod +x mvnw && ./mvnw verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=kkeshavv_job-portal \
+            -Dsonar.organization=kkeshavv \
+            -Dsonar.sources=src/main/java \
+            -Dsonar.tests=src/test/java \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dspring.cloud.config.enabled=false \
+            -Dmaven.test.failure.ignore=true
+
+  sonar-resume-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-resume-${{ hashFiles('resume-service/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Test & Analyze resume-service
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd resume-service && chmod +x mvnw && ./mvnw verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=kkeshavv_job-portal \
+            -Dsonar.organization=kkeshavv \
+            -Dsonar.sources=src/main/java \
+            -Dsonar.tests=src/test/java \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dspring.cloud.config.enabled=false \
+            -Dmaven.test.failure.ignore=true
+
+  sonar-notification-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-notif-${{ hashFiles('notification-service/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Test & Analyze notification-service
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd notification-service && chmod +x mvnw && ./mvnw verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=kkeshavv_job-portal \
+            -Dsonar.organization=kkeshavv \
+            -Dsonar.sources=src/main/java \
+            -Dsonar.tests=src/test/java \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dspring.cloud.config.enabled=false \
+            -Dmaven.test.failure.ignore=true
+
+  sonar-search-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-search-${{ hashFiles('search-service/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Test & Analyze search-service
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd search-service && chmod +x mvnw && ./mvnw verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=kkeshavv_job-portal \
+            -Dsonar.organization=kkeshavv \
+            -Dsonar.sources=src/main/java \
+            -Dsonar.tests=src/test/java \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dspring.cloud.config.enabled=false \
+            -Dmaven.test.failure.ignore=true
+
+  sonar-analytics-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-analytics-${{ hashFiles('analytics-service/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Test & Analyze analytics-service
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd analytics-service && chmod +x mvnw && ./mvnw verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=kkeshavv_job-portal \
+            -Dsonar.organization=kkeshavv \
+            -Dsonar.sources=src/main/java \
+            -Dsonar.tests=src/test/java \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dspring.cloud.config.enabled=false \
+            -Dmaven.test.failure.ignore=true

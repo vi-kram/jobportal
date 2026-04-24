@@ -169,4 +169,40 @@ class JobSearchServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
     }
+
+    @Test
+    void search_blankKeyword_treatedAsNoKeyword() {
+        Job job = buildJob(1L, "Java Developer", "Bangalore", "TechCorp", 1000000.0);
+        Page<Job> page = new PageImpl<>(List.of(job), PageRequest.of(0, 10), 1);
+        when(repository.findByStatusAndLocationContainingIgnoreCase(eq("OPEN"), eq("Bangalore"), any())).thenReturn(page);
+
+        Page<JobSearchResponse> result = jobSearchService.search("  ", "Bangalore", null, null, null, 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void search_blankLocation_treatedAsNoLocation() {
+        Job job = buildJob(1L, "Java Developer", "Bangalore", "TechCorp", 1000000.0);
+        Page<Job> page = new PageImpl<>(List.of(job), PageRequest.of(0, 10), 1);
+        when(repository.findByStatusAndTitleContainingIgnoreCase(eq("OPEN"), eq("Java"), any())).thenReturn(page);
+
+        Page<JobSearchResponse> result = jobSearchService.search("Java", "  ", null, null, null, 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void search_blankCompany_treatedAsNoCompany() {
+        Job job = buildJob(1L, "Java Developer", "Bangalore", "TechCorp", 1000000.0);
+        Page<Job> page = new PageImpl<>(List.of(job), PageRequest.of(0, 10), 1);
+        when(repository.findByStatus("OPEN", PageRequest.of(0, 10))).thenReturn(page);
+
+        Page<JobSearchResponse> result = jobSearchService.search(null, null, "  ", null, null, 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+    }
 }

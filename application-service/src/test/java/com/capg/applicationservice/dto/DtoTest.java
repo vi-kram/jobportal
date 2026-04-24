@@ -60,4 +60,30 @@ class DtoTest {
         assertEquals(2L, res.getJobId());
         assertEquals(ApplicationStatus.SHORTLISTED, res.getStatus());
     }
+
+    @Test
+    void applicationResponse_noArgConstructor_works() {
+        ApplicationResponse res = new ApplicationResponse();
+        assertNotNull(res);
+        UUID id = UUID.randomUUID();
+        LocalDateTime now = LocalDateTime.now();
+        res.setApplicationId(id);
+        res.setJobId(1L);
+        res.setUserEmail("test@test.com");
+        res.setStatus(ApplicationStatus.APPLIED);
+        res.setAppliedAt(now);
+        assertEquals(id, res.getApplicationId());
+        assertEquals(1L, res.getJobId());
+    }
+
+    @Test
+    void applicationEvent_noArgConstructor_works() {
+        ApplicationEvent event = new ApplicationEvent();
+        assertNotNull(event);
+        event.setApplicationId("id-1");
+        event.setJobId(1L);
+        event.setUserEmail("test@test.com");
+        event.setStatus("APPLIED");
+        assertEquals("id-1", event.getApplicationId());
+    }
 }

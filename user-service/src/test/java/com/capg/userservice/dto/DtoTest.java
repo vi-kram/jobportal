@@ -63,4 +63,16 @@ class DtoTest {
         assertEquals("Updated", req.getName());
         assertEquals("newpass", req.getPassword());
     }
+
+    @Test
+    void userResponse_noArgConstructor_works() {
+        UserResponse res = new UserResponse();
+        assertNotNull(res);
+        res.setId(1L);
+        res.setName("John");
+        res.setEmail("john@test.com");
+        res.setRole(Role.JOB_SEEKER);
+        assertEquals(1L, res.getId());
+        assertEquals("John", res.getName());
+    }
 }
