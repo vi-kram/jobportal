@@ -31,14 +31,14 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<UserResponse> registerUser(
             @Valid @RequestBody UserRegisterRequest request) {
-        log.info("POST /api/users/register email={}", sanitize(request.getEmail()));
+        log.info("POST /api/users/register");
         return ResponseEntity.ok(userService.registerUser(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUser(
             @Valid @RequestBody UserLoginRequest request) {
-        log.info("POST /api/users/login email={}", sanitize(request.getEmail()));
+        log.info("POST /api/users/login");
         String token = userService.loginUser(request);
         return ResponseEntity.ok(Map.of("token", token));
     }
@@ -65,7 +65,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getLoggedInUser(
             @Parameter(hidden = true) @RequestHeader("X-User-Email") String email) {
-        log.info("GET /api/users/me email={}", sanitize(email));
+        log.info("GET /api/users/me");
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 

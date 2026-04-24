@@ -30,7 +30,7 @@ public class JobController {
             @Valid @RequestBody JobRequest request,
             @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
             @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
-        log.info("POST /api/jobs recruiter={}", sanitize(email));
+        log.info("POST /api/jobs - create job request received");
         return ResponseEntity.ok(jobService.createJob(request, email, role));
     }
 

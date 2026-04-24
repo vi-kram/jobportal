@@ -46,10 +46,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse registerUser(UserRegisterRequest request) {
 
-        log.info("Registering new user email={} role={}", sanitize(request.getEmail()), request.getRole());
+        log.info("Registering new user role={}", request.getRole());
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            log.warn("Registration failed - email already exists email={}", sanitize(request.getEmail()));
+            log.warn("Registration failed - email already exists");
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
@@ -68,25 +68,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public String loginUser(UserLoginRequest request) {
 
-        log.info("Login attempt email={}", sanitize(request.getEmail()));
+        log.info("Login attempt");
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
-                    log.warn("Login failed - user not found email={}", sanitize(request.getEmail()));
+                    log.warn("Login failed - user not found");
                     return new InvalidCredentialsException("Invalid email or password");
                 });
 
         if (!user.isActive()) {
-            log.warn("Login failed - account inactive email={}", sanitize(request.getEmail()));
+            log.warn("Login failed - account inactive");
             throw new InvalidCredentialsException("Account is inactive");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            log.warn("Login failed - wrong password email={}", sanitize(request.getEmail()));
+            log.warn("Login failed - wrong password");
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        log.info("Login successful email={} role={}", sanitize(user.getEmail()), user.getRole());
+        log.info("Login successful role={}", user.getRole());
         return jwtUtil.generateToken(user.getEmail(), user.getRole().name());
     }
     
@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserByEmail(String email) {
-        log.debug("Fetching user by email={}", sanitize(email));
+        log.debug("Fetching user by email");
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         return userMapper.toResponse(user);
@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
                 });
 
         if (!user.getEmail().equals(email) && !role.equals("ADMIN")) {
-            log.warn("Unauthorized profile access id={} email={}", id, sanitize(email));
+            log.warn("Unauthorized profile access id={}", id);
             throw new UnauthorizedException("You can only view your own profile");
         }
 
@@ -131,7 +131,7 @@ public class UserServiceImpl implements UserService {
                 });
 
         if (!user.getEmail().equals(email) && !role.equals("ADMIN")) {
-            log.warn("Unauthorized update attempt id={} email={}", id, sanitize(email));
+            log.warn("Unauthorized update attempt id={}", id);
             throw new UnauthorizedException("You can only update your own profile");
         }
 
