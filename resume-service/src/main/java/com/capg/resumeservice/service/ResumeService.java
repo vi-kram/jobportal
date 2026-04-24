@@ -9,7 +9,7 @@ public interface ResumeService {
 
     ResumeResponse uploadResume(ResumeUploadRequest request, String email, String role);
 
-    ResumeResponse uploadResumeFile(org.springframework.web.multipart.MultipartFile file, String email, String role) throws java.io.IOException;
+    ResumeResponse uploadResumeFile(org.springframework.web.multipart.MultipartFile file, String email, String role);
 
     ResumeResponse getResumeById(Long resumeId, String email, String role);
 

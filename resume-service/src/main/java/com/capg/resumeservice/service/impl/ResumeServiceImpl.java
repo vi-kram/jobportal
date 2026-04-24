@@ -96,7 +96,7 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     @Transactional
-    public ResumeResponse uploadResumeFile(MultipartFile file, String email, String role) throws IOException {
+    public ResumeResponse uploadResumeFile(MultipartFile file, String email, String role) {
         if (!JOB_SEEKER.equals(role)) {
             log.warn("Unauthorized resume file upload attempt");
             throw new UnauthorizedException("Only job seekers can upload resumes");
@@ -118,6 +118,7 @@ public class ResumeServiceImpl implements ResumeService {
         }
 
         Path uploadPath = Paths.get(uploadDir);
+        try {
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
@@ -140,6 +141,10 @@ public class ResumeServiceImpl implements ResumeService {
         publishResumeEvent(saved, email);
 
         return resumeMapper.toResponse(saved);
+        } catch (IOException e) {
+            log.error("File upload failed", e);
+            throw new IllegalStateException("Failed to store file", e);
+        }
     }
 
     private void publishResumeEvent(Resume saved, String email) {
