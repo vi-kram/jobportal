@@ -31,7 +31,7 @@ jobs:
       - name: Analyze user-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd user-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-user-service -Dsonar.projectName=user-service -DskipTests
+        run: cd user-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-user-service -Dsonar.projectName=user-service -Dsonar.organization=kkeshavv -DskipTests
 
   sonar-job-service:
     runs-on: ubuntu-latest
@@ -56,7 +56,7 @@ jobs:
       - name: Analyze job-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd job-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-job-service -Dsonar.projectName=job-service -DskipTests
+        run: cd job-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-job-service -Dsonar.projectName=job-service -Dsonar.organization=kkeshavv -DskipTests
 
   sonar-application-service:
     runs-on: ubuntu-latest
@@ -81,7 +81,7 @@ jobs:
       - name: Analyze application-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd application-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-application-service -Dsonar.projectName=application-service -DskipTests
+        run: cd application-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-application-service -Dsonar.projectName=application-service -Dsonar.organization=kkeshavv -DskipTests
 
   sonar-resume-service:
     runs-on: ubuntu-latest
@@ -106,7 +106,7 @@ jobs:
       - name: Analyze resume-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd resume-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-resume-service -Dsonar.projectName=resume-service -DskipTests
+        run: cd resume-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-resume-service -Dsonar.projectName=resume-service -Dsonar.organization=kkeshavv -DskipTests
 
   sonar-notification-service:
     runs-on: ubuntu-latest
@@ -131,7 +131,7 @@ jobs:
       - name: Analyze notification-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd notification-service && chmod +x mvnw && ./mvnw -B package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-notification-service -Dsonar.projectName=notification-service -DskipTests -Dspring.cloud.config.enabled=false
+        run: cd notification-service && chmod +x mvnw && ./mvnw -B package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-notification-service -Dsonar.projectName=notification-service -Dsonar.organization=kkeshavv -DskipTests -Dspring.cloud.config.enabled=false
 
   sonar-search-service:
     runs-on: ubuntu-latest
@@ -156,7 +156,7 @@ jobs:
       - name: Analyze search-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd search-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-search-service -Dsonar.projectName=search-service -DskipTests
+        run: cd search-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-search-service -Dsonar.projectName=search-service -Dsonar.organization=kkeshavv -DskipTests
 
   sonar-analytics-service:
     runs-on: ubuntu-latest
@@ -181,4 +181,4 @@ jobs:
       - name: Analyze analytics-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd analytics-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-analytics-service -Dsonar.projectName=analytics-service -DskipTests
+        run: cd analytics-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-analytics-service -Dsonar.projectName=analytics-service -Dsonar.organization=kkeshavv -DskipTests
