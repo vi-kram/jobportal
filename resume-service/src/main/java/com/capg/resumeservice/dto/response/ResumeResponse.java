@@ -9,7 +9,7 @@ public class ResumeResponse {
     private String fileUrl;
     private LocalDateTime uploadedAt;
 
-    public ResumeResponse() {}
+    public ResumeResponse() { /* default constructor for Jackson deserialization */ }
 
     public Long getResumeId() { return resumeId; }
     public void setResumeId(Long resumeId) { this.resumeId = resumeId; }

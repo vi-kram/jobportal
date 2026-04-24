@@ -12,7 +12,10 @@ public class RabbitMQConfig {
     public static final String DLX             = "jobportal.dlx";
     public static final String JOB_APPLIED_KEY = "job.applied";
 
-    @Bean public TopicExchange exchange() { return new TopicExchange(EXCHANGE); }
+    private static final String DLQ_ANALYTICS = "job.applied.analytics.queue.dlq";
+    private static final String DLQ_NOTIFY    = "job.applied.notify.queue.dlq";
+
+    @Bean public TopicExchange jobportalExchange() { return new TopicExchange(EXCHANGE); }
     @Bean public DirectExchange deadLetterExchange() { return new DirectExchange(DLX); }
 
     // ── Main Queues ──────────────────────────────────────────────────────────
@@ -20,37 +23,37 @@ public class RabbitMQConfig {
     @Bean public Queue jobAppliedAnalyticsQueue() {
         return QueueBuilder.durable("job.applied.analytics.queue")
                 .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", "job.applied.analytics.queue.dlq")
+                .withArgument("x-dead-letter-routing-key", DLQ_ANALYTICS)
                 .build();
     }
     @Bean public Queue jobAppliedNotifyQueue() {
         return QueueBuilder.durable("job.applied.notify.queue")
                 .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", "job.applied.notify.queue.dlq")
+                .withArgument("x-dead-letter-routing-key", DLQ_NOTIFY)
                 .build();
     }
 
     // ── DLQs ────────────────────────────────────────────────────────────────
 
-    @Bean public Queue jobAppliedAnalyticsDlq() { return new Queue("job.applied.analytics.queue.dlq"); }
-    @Bean public Queue jobAppliedNotifyDlq()    { return new Queue("job.applied.notify.queue.dlq"); }
+    @Bean public Queue jobAppliedAnalyticsDlq() { return new Queue(DLQ_ANALYTICS); }
+    @Bean public Queue jobAppliedNotifyDlq()    { return new Queue(DLQ_NOTIFY); }
 
     // ── Main Bindings ────────────────────────────────────────────────────────
 
     @Bean public Binding jobAppliedAnalyticsBinding() {
-        return BindingBuilder.bind(jobAppliedAnalyticsQueue()).to(exchange()).with(JOB_APPLIED_KEY);
+        return BindingBuilder.bind(jobAppliedAnalyticsQueue()).to(jobportalExchange()).with(JOB_APPLIED_KEY);
     }
     @Bean public Binding jobAppliedNotifyBinding() {
-        return BindingBuilder.bind(jobAppliedNotifyQueue()).to(exchange()).with(JOB_APPLIED_KEY);
+        return BindingBuilder.bind(jobAppliedNotifyQueue()).to(jobportalExchange()).with(JOB_APPLIED_KEY);
     }
 
     // ── DLQ Bindings ─────────────────────────────────────────────────────────
 
     @Bean public Binding jobAppliedAnalyticsDlqBinding() {
-        return BindingBuilder.bind(jobAppliedAnalyticsDlq()).to(deadLetterExchange()).with("job.applied.analytics.queue.dlq");
+        return BindingBuilder.bind(jobAppliedAnalyticsDlq()).to(deadLetterExchange()).with(DLQ_ANALYTICS);
     }
     @Bean public Binding jobAppliedNotifyDlqBinding() {
-        return BindingBuilder.bind(jobAppliedNotifyDlq()).to(deadLetterExchange()).with("job.applied.notify.queue.dlq");
+        return BindingBuilder.bind(jobAppliedNotifyDlq()).to(deadLetterExchange()).with(DLQ_NOTIFY);
     }
 
     @Bean

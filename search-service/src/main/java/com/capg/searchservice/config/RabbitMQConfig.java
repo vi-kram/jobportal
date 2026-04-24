@@ -13,7 +13,7 @@ public class RabbitMQConfig {
     public static final String JOB_CREATED_QUEUE = "job.created.search.queue";
     public static final String JOB_CLOSED_QUEUE  = "job.closed.search.queue";
 
-    @Bean public TopicExchange exchange() { return new TopicExchange(EXCHANGE); }
+    @Bean public TopicExchange jobportalExchange() { return new TopicExchange(EXCHANGE); }
     @Bean public DirectExchange deadLetterExchange() { return new DirectExchange(DLX); }
 
     // ── Main Queues ──────────────────────────────────────────────────────────
@@ -40,11 +40,11 @@ public class RabbitMQConfig {
     // ── Main Bindings ────────────────────────────────────────────────────────
 
     @Bean public Binding jobCreatedBinding() {
-        return BindingBuilder.bind(jobCreatedQueue()).to(exchange()).with("job.created");
+        return BindingBuilder.bind(jobCreatedQueue()).to(jobportalExchange()).with("job.created");
     }
 
     @Bean public Binding jobClosedBinding() {
-        return BindingBuilder.bind(jobClosedQueue()).to(exchange()).with("job.closed");
+        return BindingBuilder.bind(jobClosedQueue()).to(jobportalExchange()).with("job.closed");
     }
 
     // ── DLQ Bindings ─────────────────────────────────────────────────────────

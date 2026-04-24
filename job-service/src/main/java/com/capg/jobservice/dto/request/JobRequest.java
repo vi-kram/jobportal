@@ -20,7 +20,7 @@ public class JobRequest {
 
     private String description;
 
-    public JobRequest() {}
+    public JobRequest() { /* default constructor for Jackson deserialization */ }
 
     public String getTitle() {
         return title;

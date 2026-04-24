@@ -19,7 +19,7 @@ public class Resume {
 
     private LocalDateTime uploadedAt;
 
-    public Resume() {}
+    public Resume() { /* default constructor for JPA */ }
 
     public Long getResumeId() { return resumeId; }
     public void setResumeId(Long resumeId) { this.resumeId = resumeId; }

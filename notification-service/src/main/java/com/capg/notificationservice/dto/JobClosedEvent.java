@@ -7,7 +7,7 @@ public class JobClosedEvent {
     private String status;
     private String createdBy;
 
-    public JobClosedEvent() {}
+    public JobClosedEvent() { /* default constructor for Jackson deserialization */ }
 
     public Long getJobId() { return jobId; }
     public void setJobId(Long jobId) { this.jobId = jobId; }

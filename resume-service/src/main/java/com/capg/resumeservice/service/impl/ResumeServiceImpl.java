@@ -26,12 +26,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ResumeServiceImpl implements ResumeService {
 
     private static final Logger log = LoggerFactory.getLogger(ResumeServiceImpl.class);
+    private static final String JOB_SEEKER = "JOB_SEEKER";
 
     private final ResumeRepository resumeRepository;
     private final RabbitTemplate rabbitTemplate;
@@ -49,7 +49,7 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     @Transactional
     public ResumeResponse uploadResume(ResumeUploadRequest request, String email, String role) {
-        if (!"JOB_SEEKER".equals(role)) {
+        if (!JOB_SEEKER.equals(role)) {
             log.warn("Unauthorized resume upload attempt");
             throw new UnauthorizedException("Only job seekers can upload resumes");
         }
@@ -63,17 +63,7 @@ public class ResumeServiceImpl implements ResumeService {
         Resume saved = resumeRepository.save(resume);
         log.info("Resume saved resumeId={}", saved.getResumeId());
 
-        try {
-            ResumeEvent event = new ResumeEvent(
-                    saved.getResumeId().toString(),
-                    email,
-                    saved.getFileUrl()
-            );
-            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.RESUME_KEY, event);
-            log.info("RabbitMQ event published resumeId={}", saved.getResumeId());
-        } catch (Exception e) {
-            log.error("RabbitMQ publish failed resumeId={}", saved.getResumeId(), e);
-        }
+        publishResumeEvent(saved, email);
 
         return resumeMapper.toResponse(saved);
     }
@@ -87,7 +77,7 @@ public class ResumeServiceImpl implements ResumeService {
                     return new ResumeNotFoundException("Resume not found");
                 });
 
-        if (role.equals("JOB_SEEKER") && !resume.getUserEmail().equals(email)) {
+        if (JOB_SEEKER.equals(role) && !resume.getUserEmail().equals(email)) {
             log.warn("Unauthorized resume access resumeId={}", resumeId);
             throw new UnauthorizedException("You can only view your own resumes");
         }
@@ -101,13 +91,13 @@ public class ResumeServiceImpl implements ResumeService {
         return resumeRepository.findByUserEmail(email)
                 .stream()
                 .map(resumeMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     @Transactional
-    public ResumeResponse uploadResumeFile(MultipartFile file, String email, String role) {
-        if (!"JOB_SEEKER".equals(role)) {
+    public ResumeResponse uploadResumeFile(MultipartFile file, String email, String role) throws IOException {
+        if (!JOB_SEEKER.equals(role)) {
             log.warn("Unauthorized resume file upload attempt");
             throw new UnauthorizedException("Only job seekers can upload resumes");
         }
@@ -127,44 +117,42 @@ public class ResumeServiceImpl implements ResumeService {
             throw new IllegalArgumentException("Only PDF, DOC, DOCX files are allowed");
         }
 
+        Path uploadPath = Paths.get(uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        String fileName = email.replace("@", "_").replace(".", "_")
+                + "_" + System.currentTimeMillis() + extension;
+        Path filePath = uploadPath.resolve(fileName);
+        Files.copy(file.getInputStream(), filePath);
+
+        String fileUrl = "/uploads/resumes/" + fileName;
+
+        Resume resume = new Resume();
+        resume.setUserEmail(email);
+        resume.setFileUrl(fileUrl);
+        resume.setUploadedAt(LocalDateTime.now());
+
+        Resume saved = resumeRepository.save(resume);
+        log.info("Resume file saved resumeId={}", saved.getResumeId());
+
+        publishResumeEvent(saved, email);
+
+        return resumeMapper.toResponse(saved);
+    }
+
+    private void publishResumeEvent(Resume saved, String email) {
         try {
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            String fileName = email.replace("@", "_").replace(".", "_")
-                    + "_" + System.currentTimeMillis() + extension;
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath);
-
-            String fileUrl = "/uploads/resumes/" + fileName;
-
-            Resume resume = new Resume();
-            resume.setUserEmail(email);
-            resume.setFileUrl(fileUrl);
-            resume.setUploadedAt(LocalDateTime.now());
-
-            Resume saved = resumeRepository.save(resume);
-            log.info("Resume file saved resumeId={}", saved.getResumeId());
-
-            try {
-                ResumeEvent event = new ResumeEvent(
-                        saved.getResumeId().toString(),
-                        email,
-                        saved.getFileUrl()
-                );
-                rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.RESUME_KEY, event);
-                log.info("RabbitMQ event published resumeId={}", saved.getResumeId());
-            } catch (Exception e) {
-                log.error("RabbitMQ publish failed resumeId={}", saved.getResumeId(), e);
-            }
-
-            return resumeMapper.toResponse(saved);
-
-        } catch (IOException e) {
-            log.error("File upload failed", e);
-            throw new RuntimeException("Failed to store file");
+            ResumeEvent event = new ResumeEvent(
+                    saved.getResumeId().toString(),
+                    email,
+                    saved.getFileUrl()
+            );
+            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.RESUME_KEY, event);
+            log.info("RabbitMQ event published resumeId={}", saved.getResumeId());
+        } catch (Exception e) {
+            log.error("RabbitMQ publish failed resumeId={}", saved.getResumeId(), e);
         }
     }
 

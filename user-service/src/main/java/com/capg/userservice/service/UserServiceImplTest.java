@@ -1,2 +1,2 @@
-// This file is intentionally empty.
-// Tests are located in src/test/java/com/capg/userservice/service/UserServiceImplTest.java
+package com.capg.userservice.service;
+// Tests are in src/test/java/com/capg/userservice/service/impl/UserServiceImplTest.java

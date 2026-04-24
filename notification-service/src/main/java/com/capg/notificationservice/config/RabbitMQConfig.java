@@ -15,7 +15,7 @@ public class RabbitMQConfig {
     public static final String JOB_CLOSED_QUEUE    = "job.closed.notify.queue";
     public static final String RESUME_UPLOAD_QUEUE = "resume.upload.notify.queue";
 
-    @Bean public TopicExchange exchange() { return new TopicExchange(EXCHANGE); }
+    @Bean public TopicExchange jobportalExchange() { return new TopicExchange(EXCHANGE); }
     @Bean public DirectExchange deadLetterExchange() { return new DirectExchange(DLX); }
 
     // ── Main Queues ──────────────────────────────────────────────────────────
@@ -55,16 +55,16 @@ public class RabbitMQConfig {
     // ── Main Bindings ────────────────────────────────────────────────────────
 
     @Bean public Binding jobCreatedBinding() {
-        return BindingBuilder.bind(jobCreatedQueue()).to(exchange()).with("job.created");
+        return BindingBuilder.bind(jobCreatedQueue()).to(jobportalExchange()).with("job.created");
     }
     @Bean public Binding jobAppliedBinding() {
-        return BindingBuilder.bind(jobAppliedQueue()).to(exchange()).with("job.applied");
+        return BindingBuilder.bind(jobAppliedQueue()).to(jobportalExchange()).with("job.applied");
     }
     @Bean public Binding jobClosedBinding() {
-        return BindingBuilder.bind(jobClosedQueue()).to(exchange()).with("job.closed");
+        return BindingBuilder.bind(jobClosedQueue()).to(jobportalExchange()).with("job.closed");
     }
     @Bean public Binding resumeBinding() {
-        return BindingBuilder.bind(resumeUploadQueue()).to(exchange()).with("resume.uploaded");
+        return BindingBuilder.bind(resumeUploadQueue()).to(jobportalExchange()).with("resume.uploaded");
     }
 
     // ── DLQ Bindings ─────────────────────────────────────────────────────────

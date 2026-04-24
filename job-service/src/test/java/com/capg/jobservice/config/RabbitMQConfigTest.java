@@ -1,7 +1,6 @@
 package com.capg.jobservice.config;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.amqp.core.*;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,8 +10,8 @@ class RabbitMQConfigTest {
 
     @Test
     void exchange_isNotNull() {
-        assertNotNull(config.exchange());
-        assertEquals(RabbitMQConfig.EXCHANGE, config.exchange().getName());
+        assertNotNull(config.jobportalExchange());
+        assertEquals(RabbitMQConfig.EXCHANGE, config.jobportalExchange().getName());
     }
 
     @Test

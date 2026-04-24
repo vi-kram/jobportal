@@ -9,7 +9,7 @@ public class ResumeUploadRequest {
     @URL(message = "File URL must be a valid URL")
     private String fileUrl;
 
-    public ResumeUploadRequest() {}
+    public ResumeUploadRequest() { /* default constructor for Jackson deserialization */ }
 
     public String getFileUrl() { return fileUrl; }
     public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }

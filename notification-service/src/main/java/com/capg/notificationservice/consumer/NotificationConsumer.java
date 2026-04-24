@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 public class NotificationConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(NotificationConsumer.class);
+    private static final String SIGNATURE = "\n\nJob Portal Team";
 
     private final EmailService emailService;
 
@@ -34,8 +35,7 @@ public class NotificationConsumer {
             "Job Posted Successfully - " + event.getTitle(),
             "Hi,\n\nYour job \"" + event.getTitle() + "\" at " + event.getCompany() +
             " in " + event.getLocation() + " has been posted successfully." +
-            "\nSalary: " + event.getSalary() +
-            "\n\nJob Portal Team"
+            "\nSalary: " + event.getSalary() + SIGNATURE
         );
     }
 
@@ -47,8 +47,7 @@ public class NotificationConsumer {
             "Application Received",
             "Hi,\n\nYour application for job ID \"" + event.getJobId() + "\" has been received." +
             "\n\nApplication ID: " + event.getApplicationId() +
-            "\nStatus: " + event.getStatus() +
-            "\n\nJob Portal Team"
+            "\nStatus: " + event.getStatus() + SIGNATURE
         );
     }
 
@@ -58,8 +57,7 @@ public class NotificationConsumer {
         emailService.send(
             event.getCreatedBy(),
             "Job Closed - " + event.getTitle(),
-            "Hi,\n\nYour job posting \"" + event.getTitle() + "\" has been closed successfully." +
-            "\n\nJob Portal Team"
+            "Hi,\n\nYour job posting \"" + event.getTitle() + "\" has been closed successfully." + SIGNATURE
         );
     }
 
@@ -70,8 +68,7 @@ public class NotificationConsumer {
             event.getUserEmail(),
             "Resume Uploaded Successfully",
             "Hi,\n\nYour resume has been uploaded successfully." +
-            "\n\nResume ID: " + event.getResumeId() +
-            "\n\nJob Portal Team"
+            "\n\nResume ID: " + event.getResumeId() + SIGNATURE
         );
     }
 }

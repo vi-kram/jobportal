@@ -1,7 +1,5 @@
 package com.capg.jobservice.dto;
 
-import com.capg.jobservice.dto.JobClosedEvent;
-import com.capg.jobservice.dto.JobEvent;
 import com.capg.jobservice.dto.response.JobResponse;
 
 import org.junit.jupiter.api.Test;
@@ -62,14 +60,6 @@ class DtoTest {
 
         res.setJobId(2L);
         res.setTitle("Python Developer");
-        res.setCompany("NewCorp");
-        res.setLocation("Mumbai");
-        res.setSalary(900000.0);
-        res.setDescription("Django");
-        res.setStatus("CLOSED");
-        res.setCreatedBy("other@test.com");
-        res.setCreatedAt(now);
-
         assertEquals(2L, res.getJobId());
         assertEquals("Python Developer", res.getTitle());
     }

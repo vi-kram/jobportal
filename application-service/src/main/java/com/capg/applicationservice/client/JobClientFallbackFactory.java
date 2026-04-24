@@ -10,14 +10,6 @@ public class JobClientFallbackFactory implements FallbackFactory<JobClient> {
 
     @Override
     public JobClient create(Throwable cause) {
-        return new JobClient() {
-
-            @Override
-            public Object getJobById(Long id) {
-                throw new ResourceNotFoundException(
-                        "Job Service is currently unavailable (Circuit Breaker)"
-                );
-            }
-        };
+        return id -> { throw new ResourceNotFoundException("Job Service is currently unavailable (Circuit Breaker)"); };
     }
 }

@@ -6,7 +6,7 @@ public class ResumeEvent {
     private String userEmail;
     private String fileUrl;
 
-    public ResumeEvent() {}
+    public ResumeEvent() { /* default constructor for Jackson deserialization */ }
 
     public String getResumeId() { return resumeId; }
     public void setResumeId(String resumeId) { this.resumeId = resumeId; }

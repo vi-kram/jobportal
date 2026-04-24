@@ -7,7 +7,7 @@ public class ApplicationEvent {
     private String userEmail;
     private String status;
 
-    public ApplicationEvent() {}
+    public ApplicationEvent() { /* default constructor for Jackson deserialization */ }
 
     public String getApplicationId() { return applicationId; }
     public void setApplicationId(String applicationId) { this.applicationId = applicationId; }

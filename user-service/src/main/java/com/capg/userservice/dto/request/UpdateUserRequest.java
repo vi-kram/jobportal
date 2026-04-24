@@ -11,7 +11,7 @@ public class UpdateUserRequest {
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
-    public UpdateUserRequest() {}
+    public UpdateUserRequest() { /* default constructor for Jackson deserialization */ }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

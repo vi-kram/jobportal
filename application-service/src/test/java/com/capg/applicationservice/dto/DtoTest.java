@@ -1,6 +1,5 @@
 package com.capg.applicationservice.dto;
 
-import com.capg.applicationservice.dto.ApplicationEvent;
 import com.capg.applicationservice.dto.request.ApplicationRequest;
 import com.capg.applicationservice.dto.response.ApplicationResponse;
 import com.capg.applicationservice.entity.ApplicationStatus;

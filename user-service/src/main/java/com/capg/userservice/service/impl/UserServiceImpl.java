@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 public class UserServiceImpl implements UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+    private static final String USER_NOT_FOUND = "User not found";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -96,7 +97,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse getUserByEmail(String email) {
         log.debug("Fetching user by email");
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND));
         return userMapper.toResponse(user);
     }
 
@@ -107,7 +108,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("User not found id={}", id);
-                    return new UserNotFoundException("User not found");
+                    return new UserNotFoundException(USER_NOT_FOUND);
                 });
 
         if (!user.getEmail().equals(email) && !role.equals("ADMIN")) {
@@ -127,7 +128,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Update failed - user not found id={}", id);
-                    return new UserNotFoundException("User not found");
+                    return new UserNotFoundException(USER_NOT_FOUND);
                 });
 
         if (!user.getEmail().equals(email) && !role.equals("ADMIN")) {
