@@ -203,4 +203,48 @@ class JobServiceImplTest {
         verify(jobRepository).findById(99L);
         verify(jobRepository, never()).save(any(Job.class));
     }
+
+    @Test
+    void createJob_rabbitMqFails_stillReturnsResponse() {
+        JobRequest request = new JobRequest();
+        request.setTitle("Java Developer");
+        request.setCompany("Tech Corp");
+        request.setLocation("Bangalore");
+
+        Job savedJob = new Job(1L, "Java Developer", "Tech Corp", "Bangalore",
+                null, null, "OPEN", "recruiter@test.com", LocalDateTime.now(), LocalDateTime.now());
+
+        when(jobRepository.save(any(Job.class))).thenReturn(savedJob);
+        doThrow(new RuntimeException("RabbitMQ down"))
+                .when(rabbitTemplate).convertAndSend(anyString(), anyString(), any(Object.class));
+        when(jobMapper.toResponse(savedJob)).thenReturn(new JobResponse(
+                1L, "Java Developer", "Tech Corp", "Bangalore",
+                null, null, "OPEN", "recruiter@test.com", savedJob.getCreatedAt()));
+
+        JobResponse response = jobService.createJob(request, "recruiter@test.com", "RECRUITER");
+
+        assertNotNull(response);
+        verify(jobRepository).save(any(Job.class));
+    }
+
+    @Test
+    void closeJob_rabbitMqFails_stillReturnsResponse() {
+        Job job = new Job(1L, "Java Developer", "Tech Corp", "Bangalore",
+                null, null, "OPEN", "recruiter@test.com", LocalDateTime.now(), LocalDateTime.now());
+        Job closedJob = new Job(1L, "Java Developer", "Tech Corp", "Bangalore",
+                null, null, "CLOSED", "recruiter@test.com", LocalDateTime.now(), LocalDateTime.now());
+
+        when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
+        when(jobRepository.save(any(Job.class))).thenReturn(closedJob);
+        doThrow(new RuntimeException("RabbitMQ down"))
+                .when(rabbitTemplate).convertAndSend(anyString(), anyString(), any(Object.class));
+        when(jobMapper.toResponse(closedJob)).thenReturn(new JobResponse(
+                1L, "Java Developer", "Tech Corp", "Bangalore",
+                null, null, "CLOSED", "recruiter@test.com", closedJob.getCreatedAt()));
+
+        JobResponse result = jobService.closeJob(1L, "RECRUITER");
+
+        assertNotNull(result);
+        assertEquals("CLOSED", result.getStatus());
+    }
 }

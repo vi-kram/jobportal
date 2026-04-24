@@ -44,4 +44,12 @@ class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals("Error", response.getBody().getMessage());
     }
+
+    @Test
+    void handleInvalidEnum_returns400() {
+        ResponseEntity<ErrorResponse> response = handler.handleInvalidEnum(
+                new org.springframework.http.converter.HttpMessageNotReadableException("Invalid"));
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Invalid value provided for role", response.getBody().getMessage());
+    }
 }

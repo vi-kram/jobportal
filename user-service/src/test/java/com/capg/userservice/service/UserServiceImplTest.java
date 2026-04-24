@@ -253,4 +253,50 @@ class UserServiceImplTest {
 
         verify(userRepository, never()).save(any(User.class));
     }
+
+    // getUserByEmail tests
+
+    @Test
+    void getUserByEmail_success() {
+        User user = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        UserResponse expected = buildResponse(1L, "john@example.com", Role.JOB_SEEKER);
+
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(userMapper.toResponse(user)).thenReturn(expected);
+
+        UserResponse response = userService.getUserByEmail("john@example.com");
+
+        assertNotNull(response);
+        assertEquals("john@example.com", response.getEmail());
+        verify(userRepository).findByEmail("john@example.com");
+    }
+
+    @Test
+    void getUserByEmail_notFound_throwsException() {
+        when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class,
+                () -> userService.getUserByEmail("unknown@example.com"));
+    }
+
+    @Test
+    void updateUser_nullPassword_doesNotEncodePassword() {
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setName("Updated Name");
+        request.setPassword(null);
+
+        User existingUser = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        User updatedUser = new User(1L, "Updated Name", "john@example.com",
+                "encodedPassword", Role.JOB_SEEKER, true, LocalDateTime.now(), LocalDateTime.now());
+        UserResponse expected = buildResponse(1L, "john@example.com", Role.JOB_SEEKER);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userMapper.toResponse(updatedUser)).thenReturn(expected);
+
+        UserResponse response = userService.updateUser(1L, request, "john@example.com", "JOB_SEEKER");
+
+        assertNotNull(response);
+        verify(passwordEncoder, never()).encode(anyString());
+    }
 }
