@@ -11,8 +11,6 @@ jobs:
 
   build-user-service:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,21 +20,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Build user-service
+      - name: Build & Test user-service
         run: cd user-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t "${DOCKER_USERNAME}/user-service:latest" ./user-service
-          docker push "${DOCKER_USERNAME}/user-service:latest"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/user-service:latest ./user-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/user-service:latest
 
   build-job-service:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,21 +39,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Build job-service
+      - name: Build & Test job-service
         run: cd job-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t "${DOCKER_USERNAME}/job-service:latest" ./job-service
-          docker push "${DOCKER_USERNAME}/job-service:latest"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/job-service:latest ./job-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/job-service:latest
 
   build-application-service:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -70,21 +58,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Build application-service
+      - name: Build & Test application-service
         run: cd application-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t "${DOCKER_USERNAME}/application-service:latest" ./application-service
-          docker push "${DOCKER_USERNAME}/application-service:latest"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/application-service:latest ./application-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/application-service:latest
 
   build-resume-service:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,21 +77,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Build resume-service
+      - name: Build & Test resume-service
         run: cd resume-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t "${DOCKER_USERNAME}/resume-service:latest" ./resume-service
-          docker push "${DOCKER_USERNAME}/resume-service:latest"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/resume-service:latest ./resume-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/resume-service:latest
 
   build-notification-service:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -118,21 +96,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Build notification-service
+      - name: Build & Test notification-service
         run: cd notification-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t "${DOCKER_USERNAME}/notification-service:latest" ./notification-service
-          docker push "${DOCKER_USERNAME}/notification-service:latest"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/notification-service:latest ./notification-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/notification-service:latest
 
   build-search-service:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -142,21 +115,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Build search-service
+      - name: Build & Test search-service
         run: cd search-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t "${DOCKER_USERNAME}/search-service:latest" ./search-service
-          docker push "${DOCKER_USERNAME}/search-service:latest"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/search-service:latest ./search-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/search-service:latest
 
   build-analytics-service:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -166,21 +134,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Build analytics-service
+      - name: Build & Test analytics-service
         run: cd analytics-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t "${DOCKER_USERNAME}/analytics-service:latest" ./analytics-service
-          docker push "${DOCKER_USERNAME}/analytics-service:latest"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/analytics-service:latest ./analytics-service
+          docker push ${{ secrets.DOCKER_USERNAME }}/analytics-service:latest
 
   build-api-gateway:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -190,21 +153,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Build api-gateway
+      - name: Build & Test api-gateway
         run: cd api-gateway && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t "${DOCKER_USERNAME}/api-gateway:latest" ./api-gateway
-          docker push "${DOCKER_USERNAME}/api-gateway:latest"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/api-gateway:latest ./api-gateway
+          docker push ${{ secrets.DOCKER_USERNAME }}/api-gateway:latest
 
   build-eureka-server:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -217,18 +175,13 @@ jobs:
       - name: Build eureka-server
         run: cd eureka-server && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t "${DOCKER_USERNAME}/eureka-server:latest" ./eureka-server
-          docker push "${DOCKER_USERNAME}/eureka-server:latest"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/eureka-server:latest ./eureka-server
+          docker push ${{ secrets.DOCKER_USERNAME }}/eureka-server:latest
 
   build-config-server:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -241,10 +194,7 @@ jobs:
       - name: Build config-server
         run: cd config-server && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build -t "${DOCKER_USERNAME}/config-server:latest" ./config-server
-          docker push "${DOCKER_USERNAME}/config-server:latest"
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/config-server:latest ./config-server
+          docker push ${{ secrets.DOCKER_USERNAME }}/config-server:latest
