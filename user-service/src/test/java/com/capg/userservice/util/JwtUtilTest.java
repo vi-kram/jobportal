@@ -74,4 +74,10 @@ class JwtUtilTest {
         assertTrue(jwtUtil.validateToken(token, "recruiter@example.com"));
         assertEquals("RECRUITER", jwtUtil.extractRole(token));
     }
+
+    @Test
+    void validateToken_adminRole_validToken_returnsTrue() {
+        String token = jwtUtil.generateToken("admin@example.com", "ADMIN");
+        assertTrue(jwtUtil.validateToken(token, "admin@example.com"));
+    }
 }

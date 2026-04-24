@@ -342,6 +342,16 @@ class ResumeServiceImplTest {
     }
 
     @Test
+    void uploadResumeFile_filenameWithoutDot_throwsException() {
+        // originalFilename not null but no dot -> extension = "" -> invalid
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "resumefile", "application/pdf", "pdf content".getBytes());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER"));
+    }
+
+    @Test
     void uploadResumeFile_ioException_throwsRuntimeException() throws Exception {
         // Use a read-only path to force IOException
         org.springframework.web.multipart.MultipartFile badFile =

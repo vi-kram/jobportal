@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.mockito.MockedStatic;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AnalyticsServiceApplicationTests {
 
@@ -15,5 +16,10 @@ class AnalyticsServiceApplicationTests {
                   .thenReturn(mock(ConfigurableApplicationContext.class));
             AnalyticsServiceApplication.main(new String[]{});
         }
+    }
+
+    @Test
+    void constructor_canBeInstantiated() {
+        assertNotNull(new AnalyticsServiceApplication());
     }
 }
