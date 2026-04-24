@@ -26,7 +26,7 @@ jobs:
         run: cd user-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/user-service:latest ./user-service
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/user-service:latest ./user-service
           docker push ${{ secrets.DOCKER_USERNAME }}/user-service:latest
 
   build-job-service:
@@ -46,7 +46,7 @@ jobs:
         run: cd job-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/job-service:latest ./job-service
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/job-service:latest ./job-service
           docker push ${{ secrets.DOCKER_USERNAME }}/job-service:latest
 
   build-application-service:
@@ -66,7 +66,7 @@ jobs:
         run: cd application-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/application-service:latest ./application-service
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/application-service:latest ./application-service
           docker push ${{ secrets.DOCKER_USERNAME }}/application-service:latest
 
   build-resume-service:
@@ -86,7 +86,7 @@ jobs:
         run: cd resume-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/resume-service:latest ./resume-service
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/resume-service:latest ./resume-service
           docker push ${{ secrets.DOCKER_USERNAME }}/resume-service:latest
 
   build-notification-service:
@@ -106,7 +106,7 @@ jobs:
         run: cd notification-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/notification-service:latest ./notification-service
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/notification-service:latest ./notification-service
           docker push ${{ secrets.DOCKER_USERNAME }}/notification-service:latest
 
   build-search-service:
@@ -126,7 +126,7 @@ jobs:
         run: cd search-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/search-service:latest ./search-service
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/search-service:latest ./search-service
           docker push ${{ secrets.DOCKER_USERNAME }}/search-service:latest
 
   build-analytics-service:
@@ -146,7 +146,7 @@ jobs:
         run: cd analytics-service && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/analytics-service:latest ./analytics-service
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/analytics-service:latest ./analytics-service
           docker push ${{ secrets.DOCKER_USERNAME }}/analytics-service:latest
 
   build-api-gateway:
@@ -166,7 +166,7 @@ jobs:
         run: cd api-gateway && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/api-gateway:latest ./api-gateway
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/api-gateway:latest ./api-gateway
           docker push ${{ secrets.DOCKER_USERNAME }}/api-gateway:latest
 
   build-eureka-server:
@@ -186,7 +186,7 @@ jobs:
         run: cd eureka-server && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/eureka-server:latest ./eureka-server
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/eureka-server:latest ./eureka-server
           docker push ${{ secrets.DOCKER_USERNAME }}/eureka-server:latest
 
   build-config-server:
@@ -206,5 +206,5 @@ jobs:
         run: cd config-server && chmod +x mvnw && ./mvnw package -DskipTests -q
       - name: Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/config-server:latest ./config-server
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/config-server:latest ./config-server
           docker push ${{ secrets.DOCKER_USERNAME }}/config-server:latest
