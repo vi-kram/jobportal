@@ -88,4 +88,11 @@ class JwtUtilTest {
         // email matches but token is expired — hits the false branch of !isTokenExpired
         assertFalse(jwtUtil.validateToken(token, "test@example.com"));
     }
+
+    @Test
+    void isTokenNotExpired_longExpiry_returnsTrue() {
+        ReflectionTestUtils.setField(jwtUtil, "expiration", 86400000L);
+        String token = jwtUtil.generateToken("fresh@example.com", "JOB_SEEKER");
+        assertTrue(jwtUtil.validateToken(token, "fresh@example.com"));
+    }
 }

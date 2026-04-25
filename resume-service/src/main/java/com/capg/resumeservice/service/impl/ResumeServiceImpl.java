@@ -108,9 +108,12 @@ public class ResumeServiceImpl implements ResumeService {
         }
 
         String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename != null && originalFilename.contains(".")
-                ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                : "";
+        String extension;
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        } else {
+            extension = "";
+        }
 
         if (!extension.equalsIgnoreCase(".pdf") && !extension.equalsIgnoreCase(".doc")
                 && !extension.equalsIgnoreCase(".docx")) {
