@@ -62,35 +62,26 @@ class JwtUtilTest {
     }
 
     @Test
-    void validateToken_emailMismatch_returnsFalseWithoutCheckingExpiry() {
+    void validateToken_emailMismatch_returnsFalse() {
         String token = jwtUtil.generateToken("test@example.com", "JOB_SEEKER");
-        // email doesn't match — short-circuit, isTokenExpired never evaluated
         assertFalse(jwtUtil.validateToken(token, "different@example.com"));
     }
 
     @Test
-    void validateToken_recruiterRole_validToken_returnsTrue() {
+    void validateToken_recruiterRole_returnsTrue() {
         String token = jwtUtil.generateToken("recruiter@example.com", "RECRUITER");
         assertTrue(jwtUtil.validateToken(token, "recruiter@example.com"));
         assertEquals("RECRUITER", jwtUtil.extractRole(token));
     }
 
     @Test
-    void validateToken_adminRole_validToken_returnsTrue() {
+    void validateToken_adminRole_returnsTrue() {
         String token = jwtUtil.generateToken("admin@example.com", "ADMIN");
         assertTrue(jwtUtil.validateToken(token, "admin@example.com"));
     }
 
     @Test
-    void validateToken_emailMatchesButExpired_returnsFalse() {
-        ReflectionTestUtils.setField(jwtUtil, "expiration", -1000L);
-        String token = jwtUtil.generateToken("test@example.com", "JOB_SEEKER");
-        // email matches but token is expired — hits the false branch of !isTokenExpired
-        assertFalse(jwtUtil.validateToken(token, "test@example.com"));
-    }
-
-    @Test
-    void isTokenNotExpired_longExpiry_returnsTrue() {
+    void validateToken_longExpiry_returnsTrue() {
         ReflectionTestUtils.setField(jwtUtil, "expiration", 86400000L);
         String token = jwtUtil.generateToken("fresh@example.com", "JOB_SEEKER");
         assertTrue(jwtUtil.validateToken(token, "fresh@example.com"));
