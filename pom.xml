@@ -17,6 +17,14 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>kkeshavv_job-portal</sonar.projectKey>
         <sonar.projectName>job-portal</sonar.projectName>
+        <sonar.coverage.exclusions>
+            **/config/SecurityConfig.java,
+            **/config/RabbitMQConfig.java,
+            **/config/RedisConfig.java,
+            **/config/OpenApiConfig.java,
+            **/config/PasswordConfig.java,
+            **/config/RestTemplateConfig.java
+        </sonar.coverage.exclusions>
     </properties>
 
     <modules>
