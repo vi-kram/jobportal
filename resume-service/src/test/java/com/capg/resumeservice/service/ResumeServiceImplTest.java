@@ -363,7 +363,7 @@ class ResumeServiceImplTest {
         ReflectionTestUtils.setField(resumeService, "uploadDir",
                 System.getProperty("java.io.tmpdir"));
 
-        assertThrows(RuntimeException.class,
+        assertThrows(IllegalStateException.class,
                 () -> resumeService.uploadResumeFile(badFile, "seeker@test.com", "JOB_SEEKER"));
     }
 }

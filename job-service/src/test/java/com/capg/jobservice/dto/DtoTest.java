@@ -60,8 +60,22 @@ class DtoTest {
 
         res.setJobId(2L);
         res.setTitle("Python Developer");
+        res.setCompany("NewCorp");
+        res.setLocation("Mumbai");
+        res.setSalary(900000.0);
+        res.setDescription("Django");
+        res.setStatus("CLOSED");
+        res.setCreatedBy("other@test.com");
+        res.setCreatedAt(now);
+
         assertEquals(2L, res.getJobId());
         assertEquals("Python Developer", res.getTitle());
+        assertEquals("NewCorp", res.getCompany());
+        assertEquals("Mumbai", res.getLocation());
+        assertEquals(900000.0, res.getSalary());
+        assertEquals("Django", res.getDescription());
+        assertEquals("CLOSED", res.getStatus());
+        assertEquals("other@test.com", res.getCreatedBy());
     }
 
     @Test
