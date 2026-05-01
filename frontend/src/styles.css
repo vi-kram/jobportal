@@ -1,0 +1,293 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import 'tailwindcss';
+
+/* ─── LIGHT MODE VARIABLES ───────────────────────────────── */
+:root {
+  --bg:           #FAFAF7;
+  --surface:      #EEF2E6;
+  --surface-alt:  #e2ead8;
+  --border:       #c8d9c0;
+  --border-dark:  #a8c9b0;
+  --text:         #1A1A2E;
+  --text-muted:   #4a6358;
+  --accent:       #2D6A4F;
+  --accent-hover: #245c43;
+  --accent-dim:   #d4ede1;
+  --accent-text:  #2D6A4F;
+  --danger:       #b94040;
+  --danger-dim:   #f5e0e0;
+  --warn-dim:     #fef9c3;
+  --warn-text:    #854d0e;
+  --card-shadow:  rgba(45,106,79,0.10);
+  --font-heading: 'Sora', 'Segoe UI', system-ui, sans-serif;
+  --font-body:    'DM Sans', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ─── DARK MODE VARIABLES ────────────────────────────────── */
+.dark {
+  --bg:           #0d1f16;
+  --surface:      #162b1e;
+  --surface-alt:  #1c3526;
+  --border:       #2a4a35;
+  --border-dark:  #3a6048;
+  --text:         #e8f0e8;
+  --text-muted:   #8aab90;
+  --accent:       #4ade80;
+  --accent-hover: #22c55e;
+  --accent-dim:   #14532d;
+  --accent-text:  #4ade80;
+  --danger:       #f87171;
+  --danger-dim:   #450a0a;
+  --warn-dim:     #422006;
+  --warn-text:    #fbbf24;
+  --card-shadow:  rgba(0,0,0,0.4);
+}
+
+/* ─── BASE ───────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6,
+.font-bold, .font-semibold, .font-extrabold, .font-black {
+  font-family: var(--font-heading);
+}
+
+/* ─── TOP ACCENT BAR ─────────────────────────────────────── */
+body::before {
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2D6A4F, #52b788, #2D6A4F);
+  background-size: 200% 100%;
+  animation: shimmer 4s linear infinite;
+  z-index: 9999;
+}
+.dark body::before {
+  background: linear-gradient(90deg, #4ade80, #22c55e, #4ade80);
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── SCROLLBAR ──────────────────────────────────────────── */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+*::-webkit-scrollbar { width: 5px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background-color: var(--border); border-radius: 999px; }
+.dark *::-webkit-scrollbar-thumb { background-color: var(--border); }
+
+/* ─── TRANSITIONS ────────────────────────────────────────── */
+button, a { transition: all 0.18s ease; }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(45,106,79,0.18);
+}
+.dark input:focus, .dark select:focus, .dark textarea:focus {
+  box-shadow: 0 0 0 3px rgba(74,222,128,0.2);
+}
+
+/* ─── PAGE FADE-IN ───────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+main, .page-content {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* ─── CARD STYLES ────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 3px solid transparent;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px var(--card-shadow);
+  border-left-color: var(--accent);
+}
+
+/* ─── JOB CARD ACCENT BORDER ─────────────────────────────── */
+.job-card {
+  border-left: 3px solid var(--border);
+  transition: border-left-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.job-card:hover {
+  border-left-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px var(--card-shadow);
+}
+
+/* ─── BUTTONS ────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: white;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px var(--card-shadow);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 9999px;
+  border: 1.5px solid var(--accent);
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  background: var(--accent-dim);
+  transform: translateY(-1px);
+}
+
+/* ─── GRADIENT AVATAR ────────────────────────────────────── */
+.avatar-gradient {
+  background: linear-gradient(135deg, #2D6A4F, #52b788);
+  color: white;
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+.dark .avatar-gradient {
+  background: linear-gradient(135deg, #1e5c3a, #4ade80);
+}
+
+/* ─── STATUS BADGES ──────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge-open    { background: var(--accent-dim); color: var(--accent); }
+.badge-closed  { background: var(--danger-dim); color: var(--danger); }
+.badge-applied { background: #dbeafe; color: #1d4ed8; }
+.badge-shortlisted { background: var(--warn-dim); color: var(--warn-text); }
+.badge-interview   { background: #ede9fe; color: #5b21b6; }
+.badge-rejected    { background: var(--danger-dim); color: var(--danger); }
+
+.dark .badge-applied    { background: #1e3a5f; color: #93c5fd; }
+.dark .badge-shortlisted { background: var(--warn-dim); color: var(--warn-text); }
+.dark .badge-interview  { background: #2e1065; color: #c4b5fd; }
+
+/* ─── SKILL TAGS ─────────────────────────────────────────── */
+.skill-tag {
+  display: inline-block;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+}
+
+/* ─── SECTION LABELS ─────────────────────────────────────── */
+.section-label {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 0.3rem 0.9rem;
+  border-radius: 9999px;
+}
+
+/* ─── INPUT STYLES ───────────────────────────────────────── */
+.input-field {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(45,106,79,0.15);
+  outline: none;
+}
+
+/* ─── DARK MODE — TAILWIND CLASS OVERRIDES ───────────────── */
+.dark body { background-color: var(--bg) !important; color: var(--text) !important; }
+.dark .min-h-screen { background-color: var(--bg) !important; }
+.dark .bg-white { background-color: var(--surface) !important; }
+.dark .bg-gray-50 { background-color: var(--bg) !important; }
+.dark .bg-gray-100 { background-color: var(--surface) !important; }
+.dark .bg-gray-200 { background-color: var(--surface-alt) !important; }
+.dark nav { background-color: var(--surface) !important; border-color: var(--border) !important; }
+.dark footer { background-color: var(--surface) !important; border-color: var(--border) !important; color: var(--text-muted) !important; }
+.dark .text-gray-900 { color: var(--text) !important; }
+.dark .text-gray-800 { color: var(--text) !important; }
+.dark .text-gray-700 { color: var(--text-muted) !important; }
+.dark .text-gray-600 { color: var(--text-muted) !important; }
+.dark .text-gray-500 { color: var(--text-muted) !important; }
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300 { border-color: var(--border) !important; }
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: var(--surface-alt) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder { color: var(--text-muted) !important; }
+.dark thead { background-color: var(--surface-alt) !important; }
+.dark tbody tr:hover { background-color: var(--surface-alt) !important; }
+.dark th { color: var(--text-muted) !important; border-color: var(--border) !important; }
+.dark td { border-color: var(--border) !important; }
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg { box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important; }
+.dark .animate-pulse { background-color: var(--surface-alt) !important; }
+
+/* ─── DARK MODE — INLINE STYLE OVERRIDES ────────────────── */
+.dark [style*="background:var(--bg)"] { background-color: var(--bg) !important; }
+.dark [style*="background:var(--surface)"] { background-color: var(--surface) !important; }
+.dark [style*="background:var(--accent)"] { background-color: var(--accent-hover) !important; }
+.dark [style*="color:var(--text)"] { color: var(--text) !important; }
+.dark [style*="color:var(--accent)"] { color: var(--accent-text) !important; }
+.dark [style*="border:1px solid var(--border)"] { border-color: var(--border) !important; }
+.dark [style*="background:var(--surface-alt)"] { background-color: var(--surface-alt) !important; }
+.dark [style*="background:var(--accent-dim)"] { background-color: var(--accent-dim) !important; }
+.dark [style*="background:var(--border)"] { background-color: var(--surface-alt) !important; }

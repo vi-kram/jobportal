@@ -22,8 +22,11 @@ public class CorsConfig {
         // Allowed HTTP methods
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        // Allowed headers
-        config.setAllowedHeaders(List.of(
+        // Allowed headers - use wildcard to allow all headers
+        config.setAllowedHeaders(List.of("*"));
+
+        // Expose headers to frontend
+        config.setExposedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
                 "X-User-Email",

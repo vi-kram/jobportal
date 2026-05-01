@@ -8,6 +8,8 @@ public class JobEvent {
     private String company;
     private String location;
     private Double salary;
+    private String jobType;
+    private String experienceLevel;
     private String createdBy;
 
     public JobEvent() { /* default constructor for Jackson deserialization */ }
@@ -32,4 +34,10 @@ public class JobEvent {
 
     public String getCreatedBy() { return createdBy; }
     public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+
+    public String getJobType() { return jobType; }
+    public void setJobType(String jobType) { this.jobType = jobType; }
+
+    public String getExperienceLevel() { return experienceLevel; }
+    public void setExperienceLevel(String experienceLevel) { this.experienceLevel = experienceLevel; }
 }

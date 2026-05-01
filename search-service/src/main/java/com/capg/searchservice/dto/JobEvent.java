@@ -9,6 +9,8 @@ public class JobEvent {
     private String location;
     private String skills;
     private Double salary;
+    private String jobType;
+    private String experienceLevel;
 
     public JobEvent() {}
 
@@ -32,4 +34,10 @@ public class JobEvent {
 
     public Double getSalary() { return salary; }
     public void setSalary(Double salary) { this.salary = salary; }
+
+    public String getJobType() { return jobType; }
+    public void setJobType(String jobType) { this.jobType = jobType; }
+
+    public String getExperienceLevel() { return experienceLevel; }
+    public void setExperienceLevel(String experienceLevel) { this.experienceLevel = experienceLevel; }
 }

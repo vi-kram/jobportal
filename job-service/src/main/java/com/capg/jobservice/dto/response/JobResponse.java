@@ -10,6 +10,8 @@ public class JobResponse {
     private String company;
     private String location;
     private Double salary;
+    private String jobType;
+    private String experienceLevel;
     private String description;
     private String status;
     private String createdBy;
@@ -103,7 +105,19 @@ public class JobResponse {
 		this.createdAt = createdAt;
 	}
 
-    // getters & setters
-    
-    
+	public String getJobType() {
+		return jobType;
+	}
+
+	public void setJobType(String jobType) {
+		this.jobType = jobType;
+	}
+
+	public String getExperienceLevel() {
+		return experienceLevel;
+	}
+
+	public void setExperienceLevel(String experienceLevel) {
+		this.experienceLevel = experienceLevel;
+	}
 }

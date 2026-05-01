@@ -18,6 +18,10 @@ public class JobRequest {
 
     private Double salary;
 
+    private String jobType;
+
+    private String experienceLevel;
+
     private String description;
 
     public JobRequest() { /* default constructor for Jackson deserialization */ }
@@ -60,5 +64,21 @@ public class JobRequest {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(String jobType) {
+        this.jobType = jobType;
+    }
+
+    public String getExperienceLevel() {
+        return experienceLevel;
+    }
+
+    public void setExperienceLevel(String experienceLevel) {
+        this.experienceLevel = experienceLevel;
     }
 }

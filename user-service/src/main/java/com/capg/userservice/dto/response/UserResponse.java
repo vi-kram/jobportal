@@ -13,6 +13,9 @@ public class UserResponse {
     private String name;
     private String email;
     private Role role;
+    private String mobile;
+    private String skills;
+    private String headline;
 
     public UserResponse() {}
 
@@ -54,4 +57,13 @@ public class UserResponse {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    public String getMobile() { return mobile; }
+    public void setMobile(String mobile) { this.mobile = mobile; }
+
+    public String getSkills() { return skills; }
+    public void setSkills(String skills) { this.skills = skills; }
+
+    public String getHeadline() { return headline; }
+    public void setHeadline(String headline) { this.headline = headline; }
 }

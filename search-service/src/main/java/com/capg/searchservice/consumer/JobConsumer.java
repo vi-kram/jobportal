@@ -34,6 +34,8 @@ public class JobConsumer {
         job.setSalary(event.getSalary());
         job.setDescription(event.getDescription());
         job.setSkills(event.getSkills());
+        job.setJobType(event.getJobType());
+        job.setExperienceLevel(event.getExperienceLevel());
         job.setStatus("OPEN");
 
         repository.save(job);

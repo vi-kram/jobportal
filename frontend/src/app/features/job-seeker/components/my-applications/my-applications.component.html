@@ -1,0 +1,116 @@
+<div class="min-h-screen flex flex-col" style="background:var(--bg)">
+  <app-navbar />
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 md:px-6 py-6 md:py-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start justify-between mb-6 gap-4">
+      <div>
+        <h1 class="text-2xl font-bold" style="color:var(--text)">My Applications</h1>
+        <p class="text-sm mt-1" style="color:var(--text)">Track and manage your job applications.</p>
+      </div>
+      <div class="flex gap-3">
+        <div class="rounded-xl px-5 py-3 text-center" style="background:var(--surface); border:1px solid var(--border)">
+          <p class="text-2xl font-bold" style="color:var(--text)">{{ totalApplied }}</p>
+          <p class="text-xs uppercase tracking-wide" style="color:var(--text)">Total Applied</p>
+        </div>
+        <div class="rounded-xl px-5 py-3 text-center" style="background:var(--surface); border:1px solid var(--border)">
+          <p class="text-2xl font-bold" style="color:var(--text)">{{ totalInterviews }}</p>
+          <p class="text-xs uppercase tracking-wide" style="color:var(--text)">Interviews</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="rounded-xl p-4 mb-5 flex flex-col sm:flex-row gap-3" style="background:var(--surface); border:1px solid var(--border)">
+      <div class="flex-1 flex items-center rounded-lg px-3 py-2 gap-2" style="border:1px solid var(--border); background:var(--bg)">
+        <span style="color:var(--text)">🔍</span>
+        <input [(ngModel)]="searchTerm" type="text" placeholder="Search by job title or company..."
+          class="text-sm outline-none w-full bg-transparent" style="color:var(--text)" />
+      </div>
+      <select [(ngModel)]="selectedStatus" class="rounded-lg px-3 py-2 text-sm focus:outline-none"
+        style="border:1px solid var(--border); background:var(--bg); color:var(--text)">
+        <option *ngFor="let s of statuses">{{ s }}</option>
+      </select>
+      <select class="rounded-lg px-3 py-2 text-sm focus:outline-none"
+        style="border:1px solid var(--border); background:var(--bg); color:var(--text)">
+        <option>Any Date</option><option>Past Week</option><option>Past Month</option>
+      </select>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div *ngIf="loading" class="rounded-xl overflow-hidden animate-pulse" style="background:var(--surface); border:1px solid var(--border)">
+      <div *ngFor="let i of [1,2,3,4,5]" class="flex items-center gap-4 px-5 py-4" style="border-bottom:1px solid var(--border)">
+        <div class="w-24 h-3 rounded" style="background:var(--border)"></div>
+        <div class="w-20 h-3 rounded" style="background:var(--border)"></div>
+        <div class="w-28 h-3 rounded" style="background:var(--border)"></div>
+        <div class="w-20 h-5 rounded-full" style="background:var(--border)"></div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="text-center py-10" style="color:var(--danger)">{{ error }}</div>
+
+    <!-- Table -->
+    <div *ngIf="!loading && !error" class="rounded-xl overflow-hidden" style="background:var(--surface); border:1px solid var(--border)">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead style="background:var(--border); border-bottom:1px solid #9a9b90">
+            <tr>
+              <th class="text-left text-xs font-semibold uppercase px-5 py-3" style="color:var(--text)">Job</th>
+              <th class="text-left text-xs font-semibold uppercase px-5 py-3" style="color:var(--text)">Company</th>
+              <th class="text-left text-xs font-semibold uppercase px-5 py-3" style="color:var(--text)">Date Applied</th>
+              <th class="text-left text-xs font-semibold uppercase px-5 py-3" style="color:var(--text)">Status</th>
+              <th class="text-left text-xs font-semibold uppercase px-5 py-3" style="color:var(--text)">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let app of filteredApplications" class="transition" style="border-bottom:1px solid var(--border)">
+              <td class="px-5 py-4">
+                <button (click)="viewJob(app.jobId)" class="text-sm font-medium hover:underline" style="color:var(--accent)">
+                  Job #{{ app.jobId }}
+                </button>
+              </td>
+              <td class="px-5 py-4 text-sm" style="color:var(--text)">—</td>
+              <td class="px-5 py-4 text-sm" style="color:var(--text)">{{ app.appliedAt | date:'MMM dd, yyyy' }}</td>
+              <td class="px-5 py-4">
+                <span [class]="getStatusClass(app.status) + ' text-xs font-semibold px-3 py-1 rounded-full'">
+                  {{ getStatusLabel(app.status) }}
+                </span>
+              </td>
+              <td class="px-5 py-4">
+                <button (click)="viewJob(app.jobId)" class="text-sm font-medium hover:underline" style="color:var(--accent)">
+                  View Job
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="filteredApplications.length === 0" class="text-center py-12" style="color:var(--text)">
+        <div class="text-4xl mb-3">📋</div>
+        <p class="font-medium" style="color:var(--text)">No applications found</p>
+        <p class="text-sm mt-1">Start applying to jobs!</p>
+      </div>
+
+      <div *ngIf="totalPages > 1" class="flex items-center justify-between px-5 py-3" style="border-top:1px solid var(--border)">
+        <p class="text-sm" style="color:var(--text)">
+          Showing <span class="font-medium" style="color:var(--text)">{{ filteredApplications.length }}</span> of
+          <span class="font-medium" style="color:var(--text)">{{ totalElements }}</span> results
+        </p>
+        <div class="flex gap-1">
+          <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0"
+            class="px-3 py-1.5 rounded-lg text-sm disabled:opacity-40" style="border:1px solid var(--border); color:var(--accent)">‹</button>
+          <button *ngFor="let p of getPages()" (click)="goToPage(p)"
+            [style]="currentPage === p ? 'background:var(--accent); color:white' : 'border:1px solid var(--border); color:var(--accent)'"
+            class="px-3 py-1.5 rounded-lg text-sm">{{ p + 1 }}</button>
+          <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1"
+            class="px-3 py-1.5 rounded-lg text-sm disabled:opacity-40" style="border:1px solid var(--border); color:var(--accent)">›</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <app-footer />
+</div>

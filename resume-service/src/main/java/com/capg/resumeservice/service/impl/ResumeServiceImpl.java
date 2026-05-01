@@ -95,6 +95,18 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
+    public List<ResumeResponse> getResumesByUserEmail(String userEmail, String requesterRole) {
+        log.debug("Fetching resumes for userEmail by requesterRole={}", requesterRole);
+        if (!"RECRUITER".equals(requesterRole) && !"ADMIN".equals(requesterRole)) {
+            throw new UnauthorizedException("Only recruiters and admins can view applicant resumes");
+        }
+        return resumeRepository.findByUserEmail(userEmail)
+                .stream()
+                .map(resumeMapper::toResponse)
+                .toList();
+    }
+
+    @Override
     @Transactional
     public ResumeResponse uploadResumeFile(MultipartFile file, String email, String role) {
         if (!JOB_SEEKER.equals(role)) {
@@ -109,10 +121,13 @@ public class ResumeServiceImpl implements ResumeService {
 
         String originalFilename = file.getOriginalFilename();
         String extension;
+        String baseName;
         if (originalFilename != null && originalFilename.contains(".")) {
             extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            baseName = originalFilename.substring(0, originalFilename.lastIndexOf("."));
         } else {
             extension = "";
+            baseName = originalFilename != null ? originalFilename : "resume";
         }
 
         if (!extension.equalsIgnoreCase(".pdf") && !extension.equalsIgnoreCase(".doc")
@@ -126,10 +141,11 @@ public class ResumeServiceImpl implements ResumeService {
             Files.createDirectories(uploadPath);
         }
 
-        String fileName = email.replace("@", "_").replace(".", "_")
-                + "_" + System.currentTimeMillis() + extension;
+        // Keep original filename, add timestamp only if file already exists
+        String fileName = baseName + "_" + System.currentTimeMillis() + extension;
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath);
+        log.info("File saved as fileName={}", fileName);
 
         String fileUrl = "/uploads/resumes/" + fileName;
 

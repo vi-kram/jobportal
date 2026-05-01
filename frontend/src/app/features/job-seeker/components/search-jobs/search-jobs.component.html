@@ -1,0 +1,195 @@
+<div class="min-h-screen flex flex-col" style="background:var(--bg)">
+  <app-navbar />
+
+  <main class="flex-1 flex flex-col md:flex-row gap-0">
+
+    <!-- Left Sidebar Filters -->
+    <aside class="w-full md:w-72 p-5 shrink-0" style="background:var(--surface); border-right:1px solid var(--border)">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold" style="color:var(--text)">Filters</h2>
+        <button (click)="clearFilters()" class="text-sm hover:underline" style="color:var(--accent)">Clear All</button>
+      </div>
+
+      <!-- Location -->
+      <div class="mb-5">
+        <label class="block text-sm font-medium mb-2" style="color:var(--text)">Location</label>
+        <div class="flex items-center rounded-lg px-3 py-2 gap-2 mb-2" style="border:1px solid var(--border); background:var(--bg)">
+          <span style="color:var(--text)">📍</span>
+          <input [(ngModel)]="location" type="text" placeholder="City, state, or zip"
+            class="text-sm outline-none w-full bg-transparent" style="color:var(--text)" />
+        </div>
+        <label class="flex items-center gap-2 text-sm" style="color:var(--text)">
+          <input type="checkbox" [(ngModel)]="remoteOnly" class="rounded" style="accent-color:var(--accent)" />
+          Remote Only
+        </label>
+      </div>
+
+      <!-- Experience Level -->
+      <div class="mb-5">
+        <label class="block text-sm font-medium mb-2" style="color:var(--text)">Experience Level</label>
+        <div *ngFor="let level of experienceLevels" class="flex items-center gap-2 mb-1.5">
+          <input type="checkbox" [checked]="selectedExperience.includes(level)" (change)="toggleExperience(level)" class="rounded" style="accent-color:var(--accent)" />
+          <span class="text-sm" style="color:var(--text)">{{ level }}</span>
+        </div>
+      </div>
+
+      <!-- Job Type -->
+      <div class="mb-5">
+        <label class="block text-sm font-medium mb-2" style="color:var(--text)">Job Type</label>
+        <div *ngFor="let type of jobTypes" class="flex items-center gap-2 mb-1.5">
+          <input type="checkbox" [checked]="selectedJobTypes.includes(type)" (change)="toggleJobType(type)" class="rounded" style="accent-color:var(--accent)" />
+          <span class="text-sm" style="color:var(--text)">{{ type }}</span>
+        </div>
+      </div>
+
+      <!-- Date Posted -->
+      <div class="mb-5">
+        <label class="block text-sm font-medium mb-2" style="color:var(--text)">Date Posted</label>
+        <select [(ngModel)]="datePosted" class="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+          style="border:1px solid var(--border); background:var(--bg); color:var(--text)">
+          <option *ngFor="let d of dateOptions">{{ d }}</option>
+        </select>
+      </div>
+
+      <button (click)="search()" class="w-full text-white py-2 rounded-full text-sm font-medium transition" style="background:var(--accent)">
+        Apply Filters
+      </button>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-4 md:p-6">
+
+      <!-- Search Bar -->
+      <div class="rounded-xl p-4 mb-5" style="background:var(--surface); border:1px solid var(--border)">
+        <div class="flex gap-2 mb-4">
+          <button (click)="searchMode = 'keyword'"
+            [style]="searchMode === 'keyword' ? 'background:var(--accent); color:white' : 'background:var(--bg); color:var(--accent)'"
+            class="px-4 py-1.5 rounded-full text-sm font-medium transition">
+            Keyword Search
+          </button>
+          <button (click)="searchMode = 'skills'"
+            [style]="searchMode === 'skills' ? 'background:var(--accent); color:white' : 'background:var(--bg); color:var(--accent)'"
+            class="px-4 py-1.5 rounded-full text-sm font-medium transition">
+            Skills Search
+          </button>
+        </div>
+        <div class="flex gap-3">
+          <div class="flex-1 flex items-center rounded-lg px-4 py-2.5 gap-2" style="border:1px solid var(--border); background:var(--bg)">
+            <span style="color:var(--text)">🔍</span>
+            <input [(ngModel)]="keyword" type="text"
+              [placeholder]="searchMode === 'keyword' ? 'Job title, keywords...' : 'Skills e.g. React, Java...'"
+              class="text-sm outline-none w-full bg-transparent" style="color:var(--text)"
+              (keyup.enter)="search()" />
+          </div>
+          <button (click)="search()" class="text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition" style="background:var(--accent)">
+            Search Jobs
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Header -->
+      <div class="flex items-center justify-between mb-4" *ngIf="!loading">
+        <p class="text-sm" style="color:var(--text)">
+          <span class="font-semibold" style="color:var(--text)">{{ totalElements }}</span>
+          jobs{{ keyword ? ' for "' + keyword + '"' : ' found' }}
+        </p>
+        <div class="flex items-center gap-2 text-sm" style="color:var(--text)">
+          Sort by:
+          <select class="rounded-lg px-2 py-1 text-sm focus:outline-none" style="border:1px solid var(--border); background:var(--bg); color:var(--text)">
+            <option>Relevance</option><option>Newest</option><option>Salary</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="space-y-3">
+        <div *ngFor="let i of [1,2,3]" class="rounded-xl p-5 animate-pulse" style="background:var(--surface)">
+          <div class="flex gap-4">
+            <div class="w-12 h-12 rounded-lg shrink-0" style="background:var(--border)"></div>
+            <div class="flex-1">
+              <div class="w-3/4 h-4 rounded mb-2" style="background:var(--border)"></div>
+              <div class="w-1/2 h-3 rounded mb-2" style="background:var(--border)"></div>
+              <div class="w-2/3 h-3 rounded" style="background:var(--border)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error" class="text-center py-10" style="color:var(--danger)">{{ error }}</div>
+
+      <!-- Job List -->
+      <div *ngIf="!loading && !error" class="space-y-3">
+        <div *ngFor="let job of jobs"
+          class="rounded-xl p-5 card-hover cursor-pointer"
+          style="background:var(--surface); border:1px solid var(--border)"
+          (click)="viewJob(job.jobId)">
+
+          <div class="flex flex-col sm:flex-row items-start justify-between">
+            <div class="flex gap-4 flex-1">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-xl shrink-0" style="background:var(--accent)">
+                {{ job.company?.charAt(0) || 'C' }}
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-semibold" style="color:var(--text)">{{ job.title }}</h3>
+                  <span [style]="job.status === 'OPEN' ? 'background:#d4e6d4; color:#2d6a2d' : 'background:var(--danger-dim); color:var(--danger)'"
+                    class="text-xs font-semibold px-2 py-0.5 rounded-full">{{ job.status }}</span>
+                </div>
+                <p class="text-sm font-medium mb-1" style="color:var(--text)">{{ job.company }}</p>
+                <div class="flex gap-4 text-xs mb-2" style="color:var(--text)">
+                  <span>📍 {{ job.location }}</span>
+                  <span *ngIf="job.salary">💰 ${{ job.salary | number }}/yr</span>
+                </div>
+                <p class="text-xs line-clamp-2" style="color:var(--text)">{{ job.description }}</p>
+                <div *ngIf="job.skills" class="flex flex-wrap gap-1 mt-2">
+                  <span *ngFor="let skill of job.skills?.split(',')?.slice(0,4)"
+                    class="text-xs px-2 py-0.5 rounded-full font-medium"
+                    style="background:var(--bg); color:var(--accent); border:1px solid var(--border)">
+                    {{ skill.trim() }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex sm:flex-col gap-2 sm:ml-4 mt-3 sm:mt-0 shrink-0" (click)="$event.stopPropagation()">
+              <button *ngIf="job.status === 'OPEN' && !appliedJobIds.has(job.jobId)"
+                (click)="applyNow(job.jobId, $event)" [disabled]="applyingJobId === job.jobId"
+                class="text-white text-xs font-semibold px-4 py-2 rounded-full transition disabled:opacity-50"
+                style="background:var(--accent)">
+                {{ applyingJobId === job.jobId ? 'Applying...' : 'Apply Now' }}
+              </button>
+              <button *ngIf="appliedJobIds.has(job.jobId)"
+                class="text-xs font-semibold px-4 py-2 rounded-full cursor-default"
+                style="background:var(--bg); color:var(--accent)">Applied ✓</button>
+              <button class="text-xs px-4 py-2 rounded-full" style="border:1px solid var(--border); color:var(--accent)">🔖 Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty -->
+      <div *ngIf="!loading && !error && jobs.length === 0" class="text-center py-16" style="color:var(--text)">
+        <div class="text-5xl mb-4">🔍</div>
+        <p class="text-lg font-medium" style="color:var(--text)">No jobs found</p>
+        <p class="text-sm mt-1">Try different keywords or filters</p>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="totalPages > 1" class="flex items-center justify-center gap-2 mt-6">
+        <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0"
+          class="px-3 py-1.5 rounded-lg text-sm disabled:opacity-40"
+          style="border:1px solid var(--border); color:var(--accent)">‹</button>
+        <button *ngFor="let p of getPages()" (click)="goToPage(p)"
+          [style]="currentPage === p ? 'background:var(--accent); color:white' : 'border:1px solid var(--border); color:var(--accent)'"
+          class="px-3 py-1.5 rounded-lg text-sm font-medium">{{ p + 1 }}</button>
+        <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1"
+          class="px-3 py-1.5 rounded-lg text-sm disabled:opacity-40"
+          style="border:1px solid var(--border); color:var(--accent)">›</button>
+      </div>
+
+    </div>
+  </main>
+
+  <app-footer />
+</div>

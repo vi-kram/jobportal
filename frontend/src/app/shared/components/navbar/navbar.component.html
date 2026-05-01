@@ -1,0 +1,212 @@
+<nav style="background:var(--surface); border-bottom:1px solid var(--border)" class="px-4 md:px-6 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+
+  <!-- Logo + Search -->
+  <div class="flex items-center gap-4">
+    <a (click)="goHome()" class="flex items-center gap-2 cursor-pointer">
+      <span class="text-xl">🧭</span>
+      <span class="font-black tracking-widest uppercase text-sm" style="color:var(--text)">JOB<span style="color:var(--accent)">COMPASS</span><span style="color:var(--accent); font-size:0.6rem; vertical-align:super">▲</span></span>
+    </a>
+    <div class="hidden md:flex items-center rounded-full px-3 py-1.5 gap-2 w-56" style="border:1px solid var(--border); background:var(--bg)">
+      <lucide-icon [img]="Search" [size]="14" style="color:var(--accent)" class="shrink-0"></lucide-icon>
+      <input type="text" placeholder="Search jobs, skills, companies..."
+        class="text-sm outline-none w-full bg-transparent"
+        style="color:var(--text)"
+        [(ngModel)]="navSearch" (keyup.enter)="goSearch()" />
+    </div>
+  </div>
+
+  <!-- Desktop Nav -->
+  <div class="hidden md:flex items-center gap-6">
+
+    <ng-container *ngIf="role === 'JOB_SEEKER'">
+      <a routerLink="/jobs" routerLinkActive="border-b-2" [routerLinkActiveOptions]="{exact:false}"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="Briefcase" [size]="20"></lucide-icon> Jobs
+      </a>
+      <a routerLink="/jobs/search" routerLinkActive="border-b-2"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="Search" [size]="20"></lucide-icon> Search
+      </a>
+      <a routerLink="/applications" routerLinkActive="border-b-2"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="ClipboardList" [size]="20"></lucide-icon> Applications
+      </a>
+      <a routerLink="/resume" routerLinkActive="border-b-2"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="FileText" [size]="20"></lucide-icon> Resume
+      </a>
+    </ng-container>
+
+    <ng-container *ngIf="role === 'RECRUITER'">
+      <a routerLink="/recruiter/dashboard" routerLinkActive="border-b-2"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="LayoutDashboard" [size]="20"></lucide-icon> Dashboard
+      </a>
+      <a routerLink="/recruiter/post-job" routerLinkActive="border-b-2"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="PlusCircle" [size]="20"></lucide-icon> Post Job
+      </a>
+      <a routerLink="/recruiter/my-jobs" routerLinkActive="border-b-2"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="Briefcase" [size]="20"></lucide-icon> My Jobs
+      </a>
+      <a routerLink="/recruiter/applicants/0" routerLinkActive="border-b-2"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="Users" [size]="20"></lucide-icon> Applicants
+      </a>
+    </ng-container>
+
+    <ng-container *ngIf="role === 'ADMIN'">
+      <a routerLink="/admin/dashboard" routerLinkActive="border-b-2"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="BarChart2" [size]="20"></lucide-icon> Dashboard
+      </a>
+      <a routerLink="/admin/users" routerLinkActive="border-b-2"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="Users" [size]="20"></lucide-icon> Users
+      </a>
+      <a routerLink="/admin/jobs" routerLinkActive="border-b-2"
+        class="flex flex-col items-center text-xs gap-0.5 pb-1 transition" style="color:var(--text)">
+        <lucide-icon [img]="Briefcase" [size]="20"></lucide-icon> Jobs
+      </a>
+    </ng-container>
+
+    <!-- Dark Mode Toggle -->
+    <button (click)="toggleDark()"
+      class="w-9 h-9 rounded-full flex items-center justify-center transition"
+      style="border:1px solid var(--border); color:var(--accent)">
+      <lucide-icon [img]="dark ? Sun : Moon" [size]="16"></lucide-icon>
+    </button>
+
+    <!-- User Avatar + Dropdown -->
+    <div class="relative navbar-dropdown-wrapper">
+      <button (click)="toggleDropdown()" class="flex items-center gap-2 rounded-full px-2 py-1 transition">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+          style="background:var(--accent)">{{ initials }}</div>
+        <div class="flex flex-col text-left">
+          <span class="text-xs font-semibold" style="color:var(--text)">{{ displayName }}</span>
+          <span class="text-xs" style="color:var(--accent)">{{ role }}</span>
+        </div>
+        <lucide-icon [img]="ChevronDown" [size]="14" style="color:var(--accent)"></lucide-icon>
+      </button>
+
+      <div *ngIf="dropdownOpen"
+        class="absolute right-0 mt-2 w-56 rounded-2xl shadow-xl z-50 overflow-hidden"
+        style="background:var(--surface); border:1px solid var(--border)">
+        <div class="px-4 py-3" style="border-bottom:1px solid var(--border)">
+          <p class="text-sm font-semibold" style="color:var(--text)">{{ displayName }}</p>
+          <p class="text-xs" style="color:var(--accent)">{{ email }}</p>
+        </div>
+        <div class="py-1">
+          <button *ngIf="role === 'RECRUITER'" (click)="navigate('/recruiter/profile'); closeDropdown()"
+            class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 transition"
+            style="color:var(--text)" onmouseover="this.style.background='var(--surface-alt)'" onmouseout="this.style.background='transparent'">
+            <lucide-icon [img]="User" [size]="15"></lucide-icon> My Profile
+          </button>
+          <button *ngIf="role === 'JOB_SEEKER'" (click)="navigate('/profile'); closeDropdown()"
+            class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 transition"
+            style="color:var(--text)" onmouseover="this.style.background='var(--surface-alt)'" onmouseout="this.style.background='transparent'">
+            <lucide-icon [img]="User" [size]="15"></lucide-icon> My Profile
+          </button>
+          <button *ngIf="role === 'JOB_SEEKER'" (click)="navigate('/applications'); closeDropdown()"
+            class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 transition"
+            style="color:var(--text)" onmouseover="this.style.background='var(--surface-alt)'" onmouseout="this.style.background='transparent'">
+            <lucide-icon [img]="ClipboardList" [size]="15"></lucide-icon> My Applications
+          </button>
+          <button (click)="navigate('/change-password'); closeDropdown()"
+            class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 transition"
+            style="color:var(--text)" onmouseover="this.style.background='var(--surface-alt)'" onmouseout="this.style.background='transparent'">
+            <lucide-icon [img]="Lock" [size]="15"></lucide-icon> Change Password
+          </button>
+          <div style="border-top:1px solid var(--border); margin:4px 0"></div>
+          <button (click)="confirmLogout(); closeDropdown()"
+            class="w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 transition"
+            style="color:var(--danger)" onmouseover="this.style.background='var(--danger-dim)'" onmouseout="this.style.background='transparent'">
+            <lucide-icon [img]="LogOut" [size]="15"></lucide-icon> Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Mobile Right -->
+  <div class="flex md:hidden items-center gap-2">
+    <button (click)="toggleDark()" class="w-8 h-8 rounded-full flex items-center justify-center"
+      style="border:1px solid var(--border); color:var(--accent)">
+      <lucide-icon [img]="dark ? Sun : Moon" [size]="15"></lucide-icon>
+    </button>
+    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+      style="background:var(--accent)">{{ initials }}</div>
+    <button (click)="toggleMobileMenu()" class="w-9 h-9 flex items-center justify-center rounded-lg transition"
+      style="color:var(--text)">
+      <lucide-icon [img]="mobileMenuOpen ? X : Menu" [size]="20"></lucide-icon>
+    </button>
+  </div>
+
+</nav>
+
+<!-- Mobile Menu Drawer -->
+<div *ngIf="mobileMenuOpen" class="md:hidden px-4 py-3 flex flex-col gap-1 z-30"
+  style="background:var(--surface); border-bottom:1px solid var(--border)">
+
+  <div class="flex items-center gap-3 px-2 py-3 mb-2" style="border-bottom:1px solid var(--border)">
+    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
+      style="background:var(--accent)">{{ initials }}</div>
+    <div>
+      <p class="text-sm font-semibold" style="color:var(--text)">{{ displayName }}</p>
+      <p class="text-xs" style="color:var(--accent)">{{ role }}</p>
+    </div>
+  </div>
+
+  <ng-container *ngIf="role === 'JOB_SEEKER'">
+    <a routerLink="/jobs" (click)="toggleMobileMenu()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="Briefcase" [size]="16" style="color:var(--accent)"></lucide-icon> Jobs
+    </a>
+    <a routerLink="/jobs/search" (click)="toggleMobileMenu()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="Search" [size]="16" style="color:var(--accent)"></lucide-icon> Search Jobs
+    </a>
+    <a routerLink="/applications" (click)="toggleMobileMenu()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="ClipboardList" [size]="16" style="color:var(--accent)"></lucide-icon> My Applications
+    </a>
+    <a routerLink="/resume" (click)="toggleMobileMenu()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="FileText" [size]="16" style="color:var(--accent)"></lucide-icon> Resume
+    </a>
+    <a routerLink="/profile" (click)="toggleMobileMenu()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="User" [size]="16" style="color:var(--accent)"></lucide-icon> My Profile
+    </a>
+  </ng-container>
+
+  <ng-container *ngIf="role === 'RECRUITER'">
+    <a routerLink="/recruiter/dashboard" (click)="toggleMobileMenu()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="LayoutDashboard" [size]="16" style="color:var(--accent)"></lucide-icon> Dashboard
+    </a>
+    <a routerLink="/recruiter/post-job" (click)="toggleMobileMenu()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="PlusCircle" [size]="16" style="color:var(--accent)"></lucide-icon> Post Job
+    </a>
+    <a routerLink="/recruiter/my-jobs" (click)="toggleMobileMenu()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="Briefcase" [size]="16" style="color:var(--accent)"></lucide-icon> My Jobs
+    </a>
+    <a routerLink="/recruiter/applicants/0" (click)="toggleMobileMenu()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="Users" [size]="16" style="color:var(--accent)"></lucide-icon> Applicants
+    </a>
+    <a routerLink="/recruiter/profile" (click)="toggleMobileMenu()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="User" [size]="16" style="color:var(--accent)"></lucide-icon> My Profile
+    </a>
+  </ng-container>
+
+  <div class="mt-1 pt-1" style="border-top:1px solid var(--border)">
+    <button (click)="navigate('/change-password'); toggleMobileMenu()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition" style="color:var(--text)">
+      <lucide-icon [img]="Lock" [size]="16" style="color:var(--accent)"></lucide-icon> Change Password
+    </button>
+    <button (click)="confirmLogout(); toggleMobileMenu()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm" style="color:var(--danger)">
+      <lucide-icon [img]="LogOut" [size]="16"></lucide-icon> Sign Out
+    </button>
+  </div>
+</div>
+
+<app-confirm-modal
+  [visible]="showLogoutModal"
+  (confirmed)="logout()"
+  (cancelled)="showLogoutModal = false">
+</app-confirm-modal>

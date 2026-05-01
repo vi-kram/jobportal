@@ -15,6 +15,8 @@ public class Job {
     private String location;
     private String skills;
     private Double salary;
+    private String jobType;
+    private String experienceLevel;
     private String status;
 
     public Job() {}
@@ -42,4 +44,10 @@ public class Job {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getJobType() { return jobType; }
+    public void setJobType(String jobType) { this.jobType = jobType; }
+
+    public String getExperienceLevel() { return experienceLevel; }
+    public void setExperienceLevel(String experienceLevel) { this.experienceLevel = experienceLevel; }
 }

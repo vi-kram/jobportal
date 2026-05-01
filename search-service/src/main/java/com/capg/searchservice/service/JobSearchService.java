@@ -69,6 +69,8 @@ public class JobSearchService {
         res.setSkills(job.getSkills());
         res.setSalary(job.getSalary());
         res.setStatus(job.getStatus());
+        res.setJobType(job.getJobType());
+        res.setExperienceLevel(job.getExperienceLevel());
         return res;
     }
 }

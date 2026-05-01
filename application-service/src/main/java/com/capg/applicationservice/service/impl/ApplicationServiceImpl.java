@@ -57,9 +57,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new UnauthorizedException("Only job seekers can apply");
         }
 
-        //  Validate job exists
-        jobClient.getJobById(request.getJobId());
-
         if (repository.existsByJobIdAndUserEmail(request.getJobId(), email)) {
             log.warn("Duplicate application jobId={} email={}", request.getJobId(), email);
             throw new AlreadyAppliedException("Already applied to this job");
@@ -148,6 +145,25 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private ApplicationResponse map(Application app) {
         return applicationMapper.toResponse(app);
+    }
+
+    @Override
+    @Transactional
+    public void withdrawApplication(UUID applicationId, String email) {
+        Application app = repository.findById(applicationId)
+                .orElseThrow(() -> {
+                    log.warn("Application not found applicationId={}", applicationId);
+                    return new ResourceNotFoundException("Application not found");
+                });
+        if (!app.getUserEmail().equals(email)) {
+            log.warn("Unauthorized withdraw attempt applicationId={} email={}", applicationId, email);
+            throw new UnauthorizedException("You can only withdraw your own applications");
+        }
+        if (app.getStatus() != ApplicationStatus.APPLIED) {
+            throw new InvalidStatusException("Only APPLIED applications can be withdrawn");
+        }
+        repository.delete(app);
+        log.info("Application withdrawn applicationId={} email={}", applicationId, email);
     }
 }
 

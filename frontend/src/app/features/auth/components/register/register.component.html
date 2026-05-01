@@ -1,0 +1,118 @@
+<!-- Register Page -->
+<div class="min-h-screen flex flex-col items-center justify-center px-4 py-10" style="background:var(--bg)">
+
+  <!-- Logo + Title -->
+  <div class="flex flex-col items-center mb-8">
+    <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-md avatar-gradient">
+      <span class="text-white text-2xl font-bold">J</span>
+    </div>
+    <p class="section-label mb-3">Get Started</p>
+    <h1 class="text-3xl font-bold" style="color:var(--text)">Create your account</h1>
+    <p class="text-sm mt-2" style="color:var(--text-muted)">Join the professional community and take the next step in your career</p>
+  </div>
+
+  <!-- Card -->
+  <div class="job-card rounded-2xl w-full max-w-lg p-8" style="background:var(--surface); border:1px solid var(--border)">
+
+    <!-- Role Selection -->
+    <p class="text-xs font-bold uppercase tracking-widest mb-3" style="color:var(--text-muted)">I want to use this platform to...</p>
+    <div class="grid grid-cols-3 gap-3 mb-6">
+
+      <button type="button" (click)="selectRole('JOB_SEEKER')"
+        [style]="selectedRole === 'JOB_SEEKER' ? 'border:2px solid var(--accent); background:var(--accent-dim)' : 'border:1.5px solid var(--border); background:var(--bg)'"
+        class="rounded-xl p-3 text-center transition">
+        <div class="text-2xl mb-1">👤</div>
+        <div class="text-sm font-bold" style="color:var(--text)">Find a Job</div>
+        <div class="text-xs mt-0.5" style="color:var(--text-muted)">Job Seeker</div>
+      </button>
+
+      <button type="button" (click)="selectRole('RECRUITER')"
+        [style]="selectedRole === 'RECRUITER' ? 'border:2px solid var(--accent); background:var(--accent-dim)' : 'border:1.5px solid var(--border); background:var(--bg)'"
+        class="rounded-xl p-3 text-center transition">
+        <div class="text-2xl mb-1">🏢</div>
+        <div class="text-sm font-bold" style="color:var(--text)">Hire Talent</div>
+        <div class="text-xs mt-0.5" style="color:var(--text-muted)">Recruiter</div>
+      </button>
+
+      <button type="button" disabled
+        class="rounded-xl p-3 text-center opacity-40 cursor-not-allowed"
+        style="border:1.5px solid var(--border); background:var(--bg)">
+        <div class="text-2xl mb-1">🛡️</div>
+        <div class="text-sm font-bold" style="color:var(--text)">Manage</div>
+        <div class="text-xs mt-0.5" style="color:var(--danger)">Invite Only</div>
+      </button>
+
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="rounded-xl p-3 mb-4 text-sm" style="background:var(--danger-dim); border:1px solid var(--danger); color:var(--danger)">
+      {{ error }}
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color:var(--text-muted)">Personal Details</p>
+
+      <div class="mb-4">
+        <label class="block text-xs font-bold uppercase tracking-widest mb-2" style="color:var(--text-muted)">Full Name</label>
+        <input formControlName="name" type="text" placeholder="e.g. Jane Doe"
+          class="input-field"
+          [style]="submitted && form.get('name').invalid ? 'border:1.5px solid var(--danger); background:var(--danger-dim)' : ''" />
+        <p *ngIf="submitted && form.get('name').invalid" class="text-xs mt-1" style="color:var(--danger)">Full name is required</p>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-xs font-bold uppercase tracking-widest mb-2" style="color:var(--text-muted)">Email Address</label>
+        <input formControlName="email" type="email" placeholder="you@example.com"
+          class="input-field"
+          [style]="submitted && form.get('email').invalid ? 'border:1.5px solid var(--danger); background:var(--danger-dim)' : ''" />
+        <p *ngIf="submitted && form.get('email').hasError('required')" class="text-xs mt-1" style="color:var(--danger)">Email is required</p>
+        <p *ngIf="submitted && form.get('email').hasError('email')" class="text-xs mt-1" style="color:var(--danger)">Please enter a valid email address</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest mb-2" style="color:var(--text-muted)">Password</label>
+          <input formControlName="password" type="password" placeholder="Create password"
+            class="input-field"
+            [style]="submitted && form.get('password').invalid ? 'border:1.5px solid var(--danger); background:var(--danger-dim)' : ''" />
+          <p *ngIf="submitted && form.get('password').hasError('required')" class="text-xs mt-1" style="color:var(--danger)">Required</p>
+          <p *ngIf="submitted && form.get('password').hasError('minlength')" class="text-xs mt-1" style="color:var(--danger)">Min 6 characters</p>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-widest mb-2" style="color:var(--text-muted)">Confirm</label>
+          <input formControlName="confirmPassword" type="password" placeholder="Repeat password"
+            class="input-field"
+            [style]="submitted && form.get('confirmPassword').invalid ? 'border:1.5px solid var(--danger); background:var(--danger-dim)' : ''" />
+          <p *ngIf="submitted && form.get('confirmPassword').invalid" class="text-xs mt-1" style="color:var(--danger)">Required</p>
+        </div>
+      </div>
+
+      <!-- Terms -->
+      <div class="flex items-start gap-2 mb-1">
+        <input type="checkbox" [(ngModel)]="agreedToTerms" [ngModelOptions]="{standalone: true}"
+          class="mt-0.5 rounded" style="accent-color:var(--accent)" />
+        <p class="text-xs" style="color:var(--text-muted)">
+          By clicking Agree &amp; Join, you agree to the
+          <a href="#" class="font-bold hover:underline" style="color:var(--accent)">User Agreement</a>,
+          <a href="#" class="font-bold hover:underline" style="color:var(--accent)">Privacy Policy</a>, and
+          <a href="#" class="font-bold hover:underline" style="color:var(--accent)">Cookie Policy</a>.
+        </p>
+      </div>
+      <p *ngIf="submitted && !agreedToTerms" class="text-xs mt-1 mb-3" style="color:var(--danger)">You must agree to the terms to continue</p>
+
+      <button type="submit" [disabled]="loading"
+        class="btn-primary w-full justify-center py-3 disabled:opacity-50 mt-2">
+        {{ loading ? 'Creating account...' : 'Agree & Join →' }}
+      </button>
+
+    </form>
+
+  </div>
+
+  <p class="mt-6 text-sm" style="color:var(--text-muted)">
+    Already have an account?
+    <a routerLink="/login" class="font-bold hover:underline" style="color:var(--accent)">Sign in →</a>
+  </p>
+
+</div>

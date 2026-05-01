@@ -68,4 +68,15 @@ public class UserController {
         log.info("GET /api/users/me");
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
+
+    @GetMapping("/by-email/{userEmail}")
+    public ResponseEntity<UserResponse> getUserByEmail(
+            @PathVariable String userEmail,
+            @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
+        log.info("GET /api/users/by-email/{}", userEmail);
+        if (!role.equals("RECRUITER") && !role.equals("ADMIN")) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(userService.getUserByEmail(userEmail));
+    }
 }

@@ -22,6 +22,10 @@ public class Job {
 
     private Double salary;
 
+    private String jobType;
+
+    private String experienceLevel;
+
     @Column(length = 2000)
     private String description;
 
@@ -132,5 +136,21 @@ public class Job {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(String jobType) {
+        this.jobType = jobType;
+    }
+
+    public String getExperienceLevel() {
+        return experienceLevel;
+    }
+
+    public void setExperienceLevel(String experienceLevel) {
+        this.experienceLevel = experienceLevel;
     }
 }

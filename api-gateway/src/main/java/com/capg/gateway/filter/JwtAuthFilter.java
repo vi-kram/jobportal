@@ -24,6 +24,7 @@ public class JwtAuthFilter implements GlobalFilter {
         // PUBLIC ENDPOINTS
         if (path.startsWith("/api/users/login") ||
             path.startsWith("/api/users/register") ||
+            path.startsWith("/api/resumes/download/") ||
             path.startsWith("/swagger-ui") ||
             path.startsWith("/v3/api-docs") ||
             path.contains("/v3/api-docs") ||
@@ -75,6 +76,13 @@ public class JwtAuthFilter implements GlobalFilter {
             return exchange.getResponse().setComplete();
         }
 
+        // RECRUITER, ADMIN → get user by email
+        if (path.matches("/api/users/by-email/.+") && method.equals("GET")
+                && !role.equals("RECRUITER") && !role.equals("ADMIN")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
         // RECRUITER only → create job
         if (path.equals("/api/jobs") && method.equals("POST")
                 && !role.equals("RECRUITER")) {
@@ -84,6 +92,13 @@ public class JwtAuthFilter implements GlobalFilter {
 
         // RECRUITER only → close job
         if (path.matches("/api/jobs/\\d+/close") && method.equals("PUT")
+                && !role.equals("RECRUITER")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // RECRUITER only → edit job
+        if (path.matches("/api/jobs/\\d+") && method.equals("PUT")
                 && !role.equals("RECRUITER")) {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
@@ -117,9 +132,22 @@ public class JwtAuthFilter implements GlobalFilter {
             return exchange.getResponse().setComplete();
         }
 
+        // JOB_SEEKER only → withdraw application
+        if (path.matches("/api/applications/[^/]+") && method.equals("DELETE")
+                && !role.equals("JOB_SEEKER")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
         // RECRUITER only → update application status
         if (path.matches("/api/applications/[^/]+/status") && method.equals("PUT")
                 && !role.equals("RECRUITER")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // JOB_SEEKER and RECRUITER → AI endpoints
+        if (path.startsWith("/api/ai") && !role.equals("JOB_SEEKER") && !role.equals("RECRUITER")) {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
         }
@@ -141,6 +169,13 @@ public class JwtAuthFilter implements GlobalFilter {
         // JOB_SEEKER only → view own resumes
         if (path.equals("/api/resumes/me") && method.equals("GET")
                 && !role.equals("JOB_SEEKER")) {
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
+        // RECRUITER, ADMIN → view resumes by user email
+        if (path.matches("/api/resumes/user/.+") && method.equals("GET")
+                && !role.equals("RECRUITER") && !role.equals("ADMIN")) {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
         }

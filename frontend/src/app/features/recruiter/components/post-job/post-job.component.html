@@ -1,0 +1,117 @@
+<div class="min-h-screen flex flex-col" style="background:var(--bg)">
+  <app-navbar />
+  <main class="flex-1 max-w-6xl mx-auto w-full px-6 py-8">
+
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold" style="color:var(--text)">{{ editJobId ? 'Edit Job' : 'Post a New Job' }}</h1>
+      <p class="text-sm mt-1" style="color:var(--text)">{{ editJobId ? 'Update your job posting details.' : 'Fill out the details below to publish your job opening.' }}</p>
+    </div>
+
+    <div *ngIf="success" class="rounded-xl p-4 mb-5 flex items-center gap-2" style="background:#d4e6d4; border:1px solid #a0c8a0; color:#2d6a2d">
+      ✅ {{ editJobId ? 'Job updated successfully!' : 'Job posted successfully!' }}
+      <button (click)="router.navigate(['/recruiter/my-jobs'])" class="ml-auto underline text-sm" style="color:#2d6a2d">View My Jobs</button>
+    </div>
+    <div *ngIf="error" class="rounded-xl p-4 mb-5" style="background:var(--danger-dim); border:1px solid #d9a0a0; color:var(--danger)">{{ error }}</div>
+
+    <div class="flex gap-6">
+      <div class="flex-1 space-y-5">
+
+        <div class="rounded-xl p-6" style="background:var(--surface); border:1px solid var(--border)">
+          <h2 class="font-bold mb-4" style="color:var(--text)">1. Job Basics</h2>
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-1" style="color:var(--text)">Job Title <span style="color:var(--danger)">*</span></label>
+            <input [(ngModel)]="form.title" type="text" placeholder="e.g. Senior Frontend Developer"
+              class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none"
+              style="border:1px solid var(--border); background:var(--bg); color:var(--text)" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1" style="color:var(--text)">Location <span style="color:var(--danger)">*</span></label>
+              <input [(ngModel)]="form.location" type="text" placeholder="City, State or Country"
+                class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none"
+                style="border:1px solid var(--border); background:var(--bg); color:var(--text)" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" style="color:var(--text)">Company <span style="color:var(--danger)">*</span></label>
+              <input [(ngModel)]="form.company" type="text" placeholder="Company name"
+                class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none"
+                style="border:1px solid var(--border); background:var(--bg); color:var(--text)" />
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl p-6" style="background:var(--surface); border:1px solid var(--border)">
+          <h2 class="font-bold mb-4" style="color:var(--text)">2. Job Details</h2>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium mb-1" style="color:var(--text)">Employment Type</label>
+              <select [(ngModel)]="form.employmentType" class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none"
+                style="border:1px solid var(--border); background:var(--bg); color:var(--text)">
+                <option>Full-time</option><option>Part-time</option><option>Contract</option><option>Internship</option><option>Remote</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" style="color:var(--text)">Experience Level</label>
+              <select [(ngModel)]="form.experienceLevel" class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none"
+                style="border:1px solid var(--border); background:var(--bg); color:var(--text)">
+                <option>Entry level</option><option>Mid-Senior level</option><option>Director</option><option>Internship</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1" style="color:var(--text)">Salary (Optional)</label>
+            <input [(ngModel)]="form.salary" type="number" placeholder="e.g. 80000"
+              class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none"
+              style="border:1px solid var(--border); background:var(--bg); color:var(--text)" />
+          </div>
+        </div>
+
+        <div class="rounded-xl p-6" style="background:var(--surface); border:1px solid var(--border)">
+          <h2 class="font-bold mb-4" style="color:var(--text)">3. Description &amp; Skills</h2>
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-1" style="color:var(--text)">Job Description <span style="color:var(--danger)">*</span></label>
+            <textarea [(ngModel)]="form.description" rows="6"
+              placeholder="Describe the role, responsibilities, and requirements..."
+              class="w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none resize-none"
+              style="border:1px solid var(--border); background:var(--bg); color:var(--text)"></textarea>
+          </div>
+        </div>
+
+        <button (click)="submitJob()" [disabled]="loading"
+          class="w-full text-white font-semibold py-3 rounded-xl transition disabled:opacity-50" style="background:var(--accent)">
+          {{ loading ? (editJobId ? 'Saving...' : 'Posting...') : (editJobId ? 'Save Changes' : 'Post Job') }}
+        </button>
+
+      </div>
+
+      <!-- Live Preview -->
+      <div class="w-72 shrink-0">
+        <p class="text-xs font-semibold uppercase tracking-wide mb-3" style="color:var(--text)">Live Preview</p>
+        <div class="rounded-xl p-5 sticky top-24" style="background:var(--surface); border:1px solid var(--border)">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold" style="background:var(--accent)">
+              {{ form.company?.charAt(0) || 'C' }}
+            </div>
+            <div>
+              <p class="font-semibold text-sm" style="color:var(--text)">{{ form.title || 'Job Title' }}</p>
+              <p class="text-xs" style="color:var(--text)">{{ form.company || 'Company Name' }}</p>
+            </div>
+          </div>
+          <p class="text-xs mb-1" style="color:var(--text)">📍 {{ form.location || 'Location' }}</p>
+          <p class="text-xs mb-1" style="color:var(--text)">💼 {{ form.employmentType }}</p>
+          <p class="text-xs mb-1" style="color:var(--text)">📈 {{ form.experienceLevel }}</p>
+          <p *ngIf="form.salary" class="text-xs mb-3" style="color:var(--text)">💰 ${{ form.salary }}/yr</p>
+          <div class="flex gap-2 mb-4">
+            <button class="flex-1 text-white text-xs py-2 rounded-full" style="background:var(--accent)">Apply</button>
+            <button class="text-xs px-3 py-2 rounded-full" style="border:1px solid var(--border); color:var(--accent)">Save</button>
+          </div>
+          <p class="text-xs font-medium mb-1" style="color:var(--text)">About the job</p>
+          <p class="text-xs line-clamp-4" style="color:var(--text)">{{ form.description || 'Job description will appear here...' }}</p>
+          <p class="text-xs mt-3" style="color:var(--text)">ℹ Changes in the form will update here automatically.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+  <app-footer />
+</div>

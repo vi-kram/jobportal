@@ -16,4 +16,6 @@ public interface ApplicationService {
 	Page<ApplicationResponse> getApplicants(Long jobId, String role, int page, int size);
 
 	ApplicationResponse updateStatus(UUID applicationId, String status, String role);
+
+	void withdrawApplication(UUID applicationId, String email);
 }

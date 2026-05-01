@@ -59,4 +59,13 @@ public class ApplicationController {
     ) {
         return ResponseEntity.ok(service.updateStatus(applicationId, status, role));
     }
+
+    @DeleteMapping("/{applicationId}")
+    public ResponseEntity<Void> withdraw(
+            @PathVariable UUID applicationId,
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email
+    ) {
+        service.withdrawApplication(applicationId, email);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -43,8 +43,13 @@ public class JobController {
     @GetMapping
     public ResponseEntity<Page<JobResponse>> getAllJobs(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("GET /api/jobs list");
+            @RequestParam(defaultValue = "10") int size,
+            @Parameter(hidden = true) @RequestHeader(value = "X-User-Email", required = false) String email,
+            @Parameter(hidden = true) @RequestHeader(value = "X-User-Role", required = false) String role) {
+        log.info("GET /api/jobs list email={} role={}", email, role);
+        if ("RECRUITER".equals(role) && email != null) {
+            return ResponseEntity.ok(jobService.getJobsByRecruiter(email, page, size));
+        }
         return ResponseEntity.ok(jobService.getAllJobs(page, size));
     }
 
@@ -54,5 +59,18 @@ public class JobController {
             @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
         log.info("PUT /api/jobs/close");
         return ResponseEntity.ok(jobService.closeJob(id, role));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<JobResponse> updateJob(
+            @PathVariable Long id,
+            @Valid @RequestBody JobRequest request,
+            @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
+            @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
+        log.info("PUT /api/jobs/{}", id);
+        if (!"RECRUITER".equals(role)) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(jobService.updateJob(id, request, email));
     }
 }

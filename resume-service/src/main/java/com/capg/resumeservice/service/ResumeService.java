@@ -15,5 +15,7 @@ public interface ResumeService {
 
     List<ResumeResponse> getMyResumes(String email);
 
+    List<ResumeResponse> getResumesByUserEmail(String userEmail, String requesterRole);
+
     void deleteResume(Long resumeId, String email);
 }

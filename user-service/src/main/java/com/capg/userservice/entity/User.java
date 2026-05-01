@@ -26,6 +26,10 @@ public class User {
     @Column(nullable = false)
     private boolean active;
 
+    private String mobile;
+    private String skills;
+    private String headline;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -109,4 +113,13 @@ public class User {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public String getMobile() { return mobile; }
+    public void setMobile(String mobile) { this.mobile = mobile; }
+
+    public String getSkills() { return skills; }
+    public void setSkills(String skills) { this.skills = skills; }
+
+    public String getHeadline() { return headline; }
+    public void setHeadline(String headline) { this.headline = headline; }
 }

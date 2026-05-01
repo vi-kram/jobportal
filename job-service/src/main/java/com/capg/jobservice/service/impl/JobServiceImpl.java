@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -45,7 +44,6 @@ public class JobServiceImpl implements JobService {
     // CREATE JOB
     @Override
     @Transactional
-    @CacheEvict(value = {"jobs", "jobsList"}, allEntries = true)
     public JobResponse createJob(JobRequest request, String email, String role) {
 
         if (!"RECRUITER".equals(role)) {
@@ -59,6 +57,8 @@ public class JobServiceImpl implements JobService {
         job.setLocation(request.getLocation());
         job.setSalary(request.getSalary());
         job.setDescription(request.getDescription());
+        job.setJobType(request.getJobType());
+        job.setExperienceLevel(request.getExperienceLevel());
         job.setCreatedBy(email);
         job.setStatus("OPEN");
         job.setCreatedAt(LocalDateTime.now());
@@ -75,6 +75,8 @@ public class JobServiceImpl implements JobService {
             event.setCompany(saved.getCompany());
             event.setLocation(saved.getLocation());
             event.setSalary(saved.getSalary());
+            event.setJobType(saved.getJobType());
+            event.setExperienceLevel(saved.getExperienceLevel());
             event.setCreatedBy(saved.getCreatedBy());
 
             rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY, event);
@@ -83,6 +85,28 @@ public class JobServiceImpl implements JobService {
             log.error("RabbitMQ publish failed jobId={}", saved.getJobId(), e);
         }
 
+        return jobMapper.toResponse(saved);
+    }
+
+    // UPDATE JOB
+    @Override
+    @Transactional
+    public JobResponse updateJob(Long jobId, JobRequest request, String email) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new JobNotFoundException("Job not found"));
+        if (!job.getCreatedBy().equals(email)) {
+            throw new UnauthorizedException("You can only edit your own jobs");
+        }
+        job.setTitle(request.getTitle());
+        job.setCompany(request.getCompany());
+        job.setLocation(request.getLocation());
+        job.setSalary(request.getSalary());
+        job.setDescription(request.getDescription());
+        job.setJobType(request.getJobType());
+        job.setExperienceLevel(request.getExperienceLevel());
+        job.setUpdatedAt(LocalDateTime.now());
+        Job saved = jobRepository.save(job);
+        log.info("Job updated jobId={} recruiter={}", saved.getJobId(), email);
         return jobMapper.toResponse(saved);
     }
 
@@ -103,17 +127,23 @@ public class JobServiceImpl implements JobService {
 
     // GET ALL JOBS
     @Override
-    @Cacheable(value = "jobsList", key = "#page + '-' + #size")
     public Page<JobResponse> getAllJobs(int page, int size) {
         log.debug("Fetching all jobs from DB page={} size={}", page, size);
         return jobRepository.findAll(PageRequest.of(page, size))
                 .map(jobMapper::toResponse);
     }
 
+    // GET JOBS BY RECRUITER
+    @Override
+    public Page<JobResponse> getJobsByRecruiter(String email, int page, int size) {
+        log.debug("Fetching jobs by recruiter email={} page={} size={}", email, page, size);
+        return jobRepository.findByCreatedByOrderByCreatedAtDesc(email, PageRequest.of(page, size))
+                .map(jobMapper::toResponse);
+    }
+
     // CLOSE JOB
     @Override
     @Transactional
-    @CacheEvict(value = {"jobs", "jobsList"}, allEntries = true)
     public JobResponse closeJob(Long jobId, String role) {
 
         if (!"RECRUITER".equals(role)) {
