@@ -41,8 +41,7 @@ jobs:
             -Dsonar.projectName=jobportal \
             -Dsonar.organization=vi-kram \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.coverage.exclusions=**/* \
             -Dsonar.qualitygate.wait=false \
             -Dspring.cloud.config.enabled=false \
-            -Dmaven.test.failure.ignore=true \
+            -Dspring.profiles.active=test \
             -f pom.xml
