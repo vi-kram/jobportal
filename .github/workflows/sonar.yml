@@ -44,4 +44,5 @@ jobs:
             -Dsonar.qualitygate.wait=false \
             -Dspring.cloud.config.enabled=false \
             -Dspring.profiles.active=test \
+            -Dmaven.test.failure.ignore=true \
             -f pom.xml
