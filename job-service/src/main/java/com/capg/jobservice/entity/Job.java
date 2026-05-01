@@ -26,8 +26,11 @@ public class Job {
 
     private String experienceLevel;
 
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String skills;
 
     @Column(nullable = false)
     private String status; // OPEN, CLOSED

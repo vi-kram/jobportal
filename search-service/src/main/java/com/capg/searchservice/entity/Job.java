@@ -10,10 +10,16 @@ public class Job {
     private Long jobId;
 
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
+
     private String company;
     private String location;
+
+    @Column(columnDefinition = "TEXT")
     private String skills;
+
     private Double salary;
     private String jobType;
     private String experienceLevel;
