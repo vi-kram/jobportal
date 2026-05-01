@@ -73,7 +73,7 @@ public class UserController {
     public ResponseEntity<UserResponse> getUserByEmail(
             @PathVariable String userEmail,
             @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
-        log.info("GET /api/users/by-email/{}", userEmail);
+        log.info("GET /api/users/by-email");
         if (!role.equals("RECRUITER") && !role.equals("ADMIN")) {
             return ResponseEntity.status(403).build();
         }

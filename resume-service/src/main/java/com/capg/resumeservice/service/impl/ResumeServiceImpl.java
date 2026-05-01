@@ -121,13 +121,11 @@ public class ResumeServiceImpl implements ResumeService {
 
         String originalFilename = file.getOriginalFilename();
         String extension;
-        String baseName;
+        // Sanitize filename — only use extension from original, generate safe base name
         if (originalFilename != null && originalFilename.contains(".")) {
             extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            baseName = originalFilename.substring(0, originalFilename.lastIndexOf("."));
         } else {
             extension = "";
-            baseName = originalFilename != null ? originalFilename : "resume";
         }
 
         if (!extension.equalsIgnoreCase(".pdf") && !extension.equalsIgnoreCase(".doc")
@@ -135,17 +133,23 @@ public class ResumeServiceImpl implements ResumeService {
             throw new IllegalArgumentException("Only PDF, DOC, DOCX files are allowed");
         }
 
-        Path uploadPath = Paths.get(uploadDir);
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         try {
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        // Keep original filename, add timestamp only if file already exists
-        String fileName = baseName + "_" + System.currentTimeMillis() + extension;
-        Path filePath = uploadPath.resolve(fileName);
+        // Use only timestamp + sanitized extension — never use user-supplied filename
+        String fileName = System.currentTimeMillis() + extension.toLowerCase();
+        Path filePath = uploadPath.resolve(fileName).normalize();
+
+        // Prevent path traversal — ensure resolved path is inside upload directory
+        if (!filePath.startsWith(uploadPath)) {
+            throw new IllegalArgumentException("Invalid file path");
+        }
+
         Files.copy(file.getInputStream(), filePath);
-        log.info("File saved as fileName={}", fileName);
+        log.info("File saved successfully");
 
         String fileUrl = "/uploads/resumes/" + fileName;
 
