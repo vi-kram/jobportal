@@ -36,9 +36,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=kkeshavv_job-portal \
-            -Dsonar.projectName=job-portal \
-            -Dsonar.organization=kkeshavv \
+            -Dsonar.projectKey=vi-kram_jobportal \
+            -Dsonar.projectName=jobportal \
+            -Dsonar.organization=vi-kram \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
             -Dspring.cloud.config.enabled=false \
             -Dmaven.test.failure.ignore=true \
