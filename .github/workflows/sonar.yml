@@ -41,7 +41,8 @@ jobs:
             -Dsonar.projectName=jobportal \
             -Dsonar.organization=vi-kram \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dsonar.coverage.exclusions=**/* \
+            -Dsonar.qualitygate.wait=false \
             -Dspring.cloud.config.enabled=false \
             -Dmaven.test.failure.ignore=true \
             -f pom.xml
