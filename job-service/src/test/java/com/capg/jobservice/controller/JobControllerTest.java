@@ -81,4 +81,46 @@ class JobControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CLOSED"));
     }
+
+    @Test
+    void updateJob_asRecruiter_returns200() throws Exception {
+        JobRequest request = new JobRequest();
+        request.setTitle("Updated Developer");
+        request.setCompany("TechCorp");
+        request.setLocation("Bangalore");
+        when(jobService.updateJob(anyLong(), any(), anyString())).thenReturn(buildResponse());
+
+        mockMvc.perform(put("/api/jobs/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+                .header("X-User-Email", "recruiter@test.com")
+                .header("X-User-Role", "RECRUITER"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void updateJob_notRecruiter_returns403() throws Exception {
+        JobRequest request = new JobRequest();
+        request.setTitle("Updated Developer");
+        request.setCompany("TechCorp");
+        request.setLocation("Bangalore");
+
+        mockMvc.perform(put("/api/jobs/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+                .header("X-User-Email", "seeker@test.com")
+                .header("X-User-Role", "JOB_SEEKER"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getAllJobs_asRecruiter_returns200() throws Exception {
+        when(jobService.getJobsByRecruiter(anyString(), anyInt(), anyInt()))
+                .thenReturn(new PageImpl<>(List.of(buildResponse()), PageRequest.of(0, 10), 1));
+
+        mockMvc.perform(get("/api/jobs")
+                .header("X-User-Email", "recruiter@test.com")
+                .header("X-User-Role", "RECRUITER"))
+                .andExpect(status().isOk());
+    }
 }

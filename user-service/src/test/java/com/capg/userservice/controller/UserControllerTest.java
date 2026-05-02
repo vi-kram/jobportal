@@ -98,4 +98,22 @@ class UserControllerTest {
                 .header("X-User-Email", "john@test.com"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @WithMockUser(roles = "RECRUITER")
+    void getUserByEmail_asRecruiter_returns200() throws Exception {
+        when(userService.getUserByEmail(anyString())).thenReturn(buildResponse());
+
+        mockMvc.perform(get("/api/users/by-email/john@test.com")
+                .header("X-User-Role", "RECRUITER"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void getUserByEmail_asJobSeeker_returns403() throws Exception {
+        mockMvc.perform(get("/api/users/by-email/john@test.com")
+                .header("X-User-Role", "JOB_SEEKER"))
+                .andExpect(status().isForbidden());
+    }
 }

@@ -89,4 +89,19 @@ class ResumeControllerTest {
                 .header("X-User-Role", "JOB_SEEKER"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void downloadResume_fileNotFound_returns404() throws Exception {
+        mockMvc.perform(get("/api/resumes/download/nonexistent.pdf"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getResumesByUserEmail_returns200() throws Exception {
+        when(resumeService.getResumesByUserEmail(anyString(), anyString())).thenReturn(List.of(buildResponse()));
+
+        mockMvc.perform(get("/api/resumes/user/seeker@test.com")
+                .header("X-User-Role", "RECRUITER"))
+                .andExpect(status().isOk());
+    }
 }
