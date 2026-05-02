@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -84,7 +85,7 @@ class ResumeControllerTest {
         when(resumeService.uploadResumeFile(any(), anyString(), anyString())).thenReturn(buildResponse());
 
         mockMvc.perform(multipart("/api/resumes/upload")
-                .file("file", "pdf content".getBytes())
+                .file("file", "pdf content".getBytes(StandardCharsets.UTF_8))
                 .header("X-User-Email", "seeker@test.com")
                 .header("X-User-Role", "JOB_SEEKER"))
                 .andExpect(status().isOk());
@@ -93,6 +94,12 @@ class ResumeControllerTest {
     @Test
     void downloadResume_fileNotFound_returns404() throws Exception {
         mockMvc.perform(get("/api/resumes/download/nonexistent.pdf"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void downloadResume_docFile_returns404() throws Exception {
+        mockMvc.perform(get("/api/resumes/download/nonexistent.doc"))
                 .andExpect(status().isNotFound());
     }
 
